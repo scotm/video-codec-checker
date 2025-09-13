@@ -22,13 +22,13 @@ GOOD_CODECS = {"av1", "hevc", "h264"}
 
 
 class VideoCodecChecker:
-    def __init__(self, output_file=None):
+    def __init__(self, output_file: str | None = None) -> None:
         self.output_file = (
             output_file
             or f"video_codec_check_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         )
 
-    def process_files(self, directory="."):
+    def process_files(self, directory: str = ".") -> int:
         """Process all video files and generate CSV output."""
         video_files = get_video_files(directory)
         results = []
@@ -72,12 +72,15 @@ class VideoCodecChecker:
         return len(results)
 
 
-def main():
+def main() -> None:
     # Load environment variables from .env file
     env_config = load_env_config()
 
     parser = argparse.ArgumentParser(
-        description="Find video files using codecs less than state-of-the-art (AV1, HEVC, H.264)"
+        description=(
+            "Find video files using codecs less than state-of-the-art "
+            "(AV1, HEVC, H.264)"
+        )
     )
     parser.add_argument(
         "-o",

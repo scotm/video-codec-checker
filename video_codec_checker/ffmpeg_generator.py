@@ -1,7 +1,9 @@
 """FFmpeg command generation for video codec conversion."""
 
+from pathlib import Path
 
-def get_audio_bitrate(channels):
+
+def get_audio_bitrate(channels: int) -> str:
     """Determine optimal Opus bitrate based on audio channels."""
     if channels == 1:
         return "48k"  # Mono
@@ -13,7 +15,7 @@ def get_audio_bitrate(channels):
         return "320k"  # 7.1 or higher
 
 
-def generate_ffmpeg_command(input_file, channels):
+def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
     """Generate FFmpeg command to convert video to AV1 and audio to Opus."""
     output_file = input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
     audio_bitrate = get_audio_bitrate(channels)

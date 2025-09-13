@@ -7,7 +7,7 @@ import yaml
 from dotenv import load_dotenv
 
 
-def load_yaml_config(config_file=None):
+def load_yaml_config(config_file: str | None = None) -> dict:
     """Load configuration from YAML file."""
     # Use provided config file or default location
     if config_file:
@@ -28,7 +28,7 @@ def load_yaml_config(config_file=None):
     return {}
 
 
-def load_env_config():
+def load_env_config() -> dict:
     """Load environment variables from .env file."""
     load_dotenv()
 

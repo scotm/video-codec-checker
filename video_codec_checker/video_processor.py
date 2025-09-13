@@ -4,7 +4,9 @@ import subprocess
 from pathlib import Path
 
 
-def get_video_files(directory=".", video_extensions=None):
+def get_video_files(
+    directory: str = ".", video_extensions: set[str] | None = None
+) -> list[Path]:
     """Find all video files recursively in the given directory."""
     if video_extensions is None:
         video_extensions = {
@@ -23,7 +25,7 @@ def get_video_files(directory=".", video_extensions=None):
         }
 
     path = Path(directory)
-    video_files = []
+    video_files: list[Path] = []
 
     for ext in video_extensions:
         video_files.extend(path.rglob(f"*{ext}"))
@@ -32,7 +34,7 @@ def get_video_files(directory=".", video_extensions=None):
     return sorted(set(video_files))  # Remove duplicates and sort
 
 
-def get_video_codec(file_path):
+def get_video_codec(file_path: Path) -> str | None:
     """Extract video codec from file using ffprobe."""
     try:
         cmd = [
@@ -53,7 +55,7 @@ def get_video_codec(file_path):
         return None
 
 
-def get_audio_channels(file_path):
+def get_audio_channels(file_path: Path) -> int:
     """Extract audio channels from file using ffprobe."""
     try:
         cmd = [
