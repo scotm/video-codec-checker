@@ -26,7 +26,6 @@ No build, lint, or test commands exist - this is a standalone Bash script.
 
 ### FFmpeg/ffprobe Usage
 - Use single `ffprobe` call to get both video codec and audio channels for efficiency
-- Use performance flags: `-probesize 100000 -analyzeduration 1000000 -fflags +fastseek+discardcorrupt`
 - Use `ffprobe -of default=noprint_wrappers=1:nokey=1` for clean extraction
 - Avoid CSV output format which can include trailing commas
 - Parse multi-line output: first line = codec, second line = channels

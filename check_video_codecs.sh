@@ -34,8 +34,7 @@ find . -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "
     # Get absolute path
     abs_file=$(realpath "$file")
     # Get codec and audio channels in single ffprobe call for efficiency
-    # Use optimized flags: reduced probesize/analyzeduration for faster scanning
-    probe_output=$(ffprobe -v quiet -probesize 100000 -analyzeduration 1000000 -fflags +fastseek+discardcorrupt -select_streams v:0 -show_entries stream=codec_name -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
+    probe_output=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
     # Parse the output: first line is codec, second line is channels (if audio exists)
     codec=$(echo "$probe_output" | head -n1)
     channels=$(echo "$probe_output" | sed -n '2p')
