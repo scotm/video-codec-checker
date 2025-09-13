@@ -25,9 +25,10 @@ No build, lint, or test commands exist - this is a standalone Bash script.
 - Add comments explaining script purpose and key sections
 
 ### FFmpeg/ffprobe Usage
-- Use `ffprobe -of default=noprint_wrappers=1:nokey=1` for clean codec extraction
+- Use single `ffprobe` call to get both video codec and audio channels for efficiency
+- Use `ffprobe -of default=noprint_wrappers=1:nokey=1` for clean extraction
 - Avoid CSV output format which can include trailing commas
-- Detect audio channels with `-select_streams a:0 -show_entries stream=channels`
+- Parse multi-line output: first line = codec, second line = channels
 
 ### Error Handling
 - Check for empty variables before processing: `[[ -n "$codec" ]]`
