@@ -12,6 +12,7 @@ Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs
 - **Bash** (for Bash version): Standard on Unix-like systems.
 - **Python** (for Python version): Python 3.6+ required.
 - **realpath**: For absolute path handling (available on macOS; install coreutils if needed: `brew install coreutils`).
+- **uv** (recommended): Python package manager for handling dependencies (install via `brew install uv`).
 
 ## Usage
 
@@ -23,6 +24,10 @@ For Bash version:
 For Python version:
 1. Run it in the target directory: `python check_video_codecs.py`
 2. Specify output file: `python check_video_codecs.py -o results.csv`
+
+For Python version with uv (recommended):
+1. Run with uv: `uv run check-video-codecs`
+2. Specify output file: `uv run check-video-codecs -o results.csv`
 
 Both versions:
 - If no output file is specified, a timestamped filename will be generated automatically

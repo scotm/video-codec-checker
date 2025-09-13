@@ -3,11 +3,23 @@
 ## Commands
 - **Run Bash script**: `./check_video_codecs.sh`
 - **Run Python script**: `python check_video_codecs.py`
+- **Run Python script with uv** (recommended): `uv run check-video-codecs`
 - **Make executable**: `chmod +x check_video_codecs.sh`
-- **Output to file**: `./check_video_codecs.sh -o results.csv` or `python check_video_codecs.py -o results.csv`
-- **Auto-generated output**: `./check_video_codecs.sh` or `python check_video_codecs.py` (creates timestamped filename)
+- **Output to file**: `./check_video_codecs.sh -o results.csv` or `python check_video_codecs.py -o results.csv` or `uv run check-video-codecs -o results.csv`
+- **Auto-generated output**: `./check_video_codecs.sh` or `python check_video_codecs.py` or `uv run check-video-codecs` (creates timestamped filename)
 
 No build, lint, or test commands exist - this is a standalone script available in both Bash and Python implementations.
+
+## UV (Recommended Python Environment Manager)
+
+This project uses uv for Python dependency management. uv is a fast Python package installer and resolver:
+
+- **Setup virtual environment**: `uv venv`
+- **Install dependencies**: `uv pip install -e .`
+- **Run script**: `uv run check-video-codecs`
+- **List installed packages**: `uv pip list`
+
+Using uv ensures dependencies are properly contained and managed without affecting the system Python installation.
 
 ## Commit Guidelines
 
