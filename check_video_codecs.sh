@@ -33,11 +33,10 @@ echo "File,Codec,FFmpeg_Command" > "$OUTPUT_FILE"
 find . -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.wmv" -o -iname "*.flv" -o -iname "*.webm" -o -iname "*.m4v" -o -iname "*.mpg" -o -iname "*.mpeg" -o -iname "*.3gp" -o -iname "*.ogv" \) -print0 | while IFS= read -r -d '' file; do
     # Get absolute path
     abs_file=$(realpath "$file")
-    # Get codec and audio channels in single ffprobe call for efficiency
-    probe_output=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
-    # Parse the output: first line is codec, second line is channels (if audio exists)
-    codec=$(echo "$probe_output" | head -n1)
-    channels=$(echo "$probe_output" | sed -n '2p')
+    # Get codec of first video stream
+    codec=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
+    # Get audio channels of first audio stream
+    channels=$(ffprobe -v quiet -select_streams a:0 -show_entries stream=channels -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
     # Check if codec is not in good list
     if [[ -n "$codec" && ! " ${GOOD_CODECS[@]} " =~ " ${codec} " ]]; then
         # Suggest FFmpeg command to convert to AV1 using SVT-AV1, audio to Opus, output MKV, strip metadata
