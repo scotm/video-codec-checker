@@ -1,0 +1,5 @@
+# Default configuration file for check-video-codecs
+# Place this file at ~/.config/check-video-codecs.yml
+
+output_file: "video_conversion_commands.csv"
+scan_directory: "."

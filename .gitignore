@@ -62,3 +62,4 @@ wheels/
 
 # CSV output files
 video_codec_check_*.csv
+test_*.csv
