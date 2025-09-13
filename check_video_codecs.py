@@ -19,6 +19,15 @@ try:
     dotenv_available = True
 except ImportError:
     dotenv_available = False
+    load_dotenv = None
+
+# Try to import yaml, but handle case where it's not available
+try:
+    import yaml
+    yaml_available = True
+except ImportError:
+    yaml = None
+    yaml_available = False
 
 
 class VideoCodecChecker:
@@ -142,9 +151,32 @@ class VideoCodecChecker:
         return len(results)
 
 
+def load_config(config_file=None):
+    """Load configuration from YAML file."""
+    if not yaml_available or yaml is None:
+        return {}
+    
+    # Use provided config file or default location
+    if config_file:
+        config_path = Path(config_file)
+    else:
+        # Cross-platform config location
+        config_path = Path.home() / ".config" / "check-video-codecs.yml"
+    
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                config_data = yaml.safe_load(f)
+                return config_data if config_data else {}
+        except Exception as e:
+            print(f"Warning: Could not load config file {config_path}: {e}", file=sys.stderr)
+            return {}
+    
+    return {}
+
 def main():
     # Load environment variables from .env file if dotenv is available
-    if dotenv_available:
+    if dotenv_available and load_dotenv:
         load_dotenv()
 
     parser = argparse.ArgumentParser(
@@ -156,6 +188,10 @@ def main():
         help="Specify output CSV filename"
     )
     parser.add_argument(
+        "--config",
+        help="Specify config file path"
+    )
+    parser.add_argument(
         "directory",
         nargs="?",
         default=os.environ.get("SCAN_DIRECTORY", ".") if dotenv_available else ".",
@@ -163,6 +199,13 @@ def main():
     )
 
     args = parser.parse_args()
+    
+    # Load configuration from YAML file
+    config = load_config(args.config)
+    
+    # Override defaults with config values if not set by environment variables
+    if not args.output and yaml_available and config:
+        args.output = config.get("output_file")
 
     try:
         checker = VideoCodecChecker(args.output)

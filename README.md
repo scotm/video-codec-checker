@@ -36,6 +36,14 @@ The Python version also supports environment variables for configuration:
 
 You can also use a `.env` file in the current directory to set these variables. See `.env.example` for reference.
 
+### YAML Configuration File
+
+The Python version supports YAML configuration files with the following options:
+- `output_file`: Default output CSV filename (equivalent to -o/--output argument)
+- `scan_directory`: Directory to scan for video files (equivalent to directory argument)
+
+The default configuration file location is `~/.config/check-video-codecs.yml`. You can specify a different location using the `--config` argument.
+
 The script outputs to a CSV file with a header row. Each row for legacy files includes:
 - **File**: Relative path to the video file.
 - **Codec**: Detected video codec (e.g., "mpeg4").

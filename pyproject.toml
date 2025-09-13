@@ -6,6 +6,7 @@ readme = "README.md"
 authors = [{ name = "Scott Macdonald", email = "scott.scotm@gmail.com" }]
 dependencies = [
     "python-dotenv>=1.0.0",
+    "PyYAML>=6.0",
 ]
 
 [project.scripts]
