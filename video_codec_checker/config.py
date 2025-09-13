@@ -2,8 +2,9 @@
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+
 import yaml
+from dotenv import load_dotenv
 
 
 def load_yaml_config(config_file=None):
@@ -17,7 +18,7 @@ def load_yaml_config(config_file=None):
 
     if config_path.exists():
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config_data = yaml.safe_load(f)
                 return config_data if config_data else {}
         except Exception:

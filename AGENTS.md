@@ -8,7 +8,11 @@
 - **Output to file**: `./check_video_codecs.sh -o results.csv` or `python check_video_codecs.py -o results.csv` or `uv run check-video-codecs -o results.csv`
 - **Auto-generated output**: `./check_video_codecs.sh` or `python check_video_codecs.py` or `uv run check-video-codecs` (creates timestamped filename)
 
-No build, lint, or test commands exist - this is a standalone script available in both Bash and Python implementations.
+## Development Commands
+- **Linting**: `uv run ruff check .`
+- **Formatting**: `uv run ruff format .`
+- **Type checking**: `uv run mypy video_codec_checker/`
+- **Run tests**: `uv run python -m pytest tests/`
 
 ## UV (Recommended Python Environment Manager)
 
@@ -20,6 +24,8 @@ This project uses uv for Python dependency management. uv is a fast Python packa
 - **List installed packages**: `uv pip list`
 
 Using uv ensures dependencies are properly contained and managed without affecting the system Python installation.
+
+## Commit Guidelines
 
 ## Commit Guidelines
 

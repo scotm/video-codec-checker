@@ -89,6 +89,23 @@ Edit the script to:
 - Add extensions: Update the `find` command's `-iname` list.
 - Exclude directories: Add `-not -path '*/exclude/*'` to the `find` command.
 
+## Development Tools
+
+This project now includes development tools for code quality assurance:
+
+- **Linting and formatting**: Uses Ruff for both linting and formatting
+- **Type checking**: Uses MyPy for static type checking
+- **Testing**: Uses pytest for running tests
+
+To run these tools:
+1. Install development dependencies: `uv pip install -e .[dev]`
+2. Run linting: `uv run ruff check .`
+3. Run formatting: `uv run ruff format .`
+4. Run type checking: `uv run mypy video_codec_checker/`
+5. Run tests: `uv run python -m pytest tests/`
+
+These tools help maintain code quality and catch potential issues early in the development process.
+
 ## License
 
 This script is provided as-is for personal use. Ensure compliance with FFmpeg and codec licensing.
