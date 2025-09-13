@@ -9,6 +9,13 @@
 
 No build, lint, or test commands exist - this is a standalone script available in both Bash and Python implementations.
 
+## Commit Guidelines
+
+- Break down changes into small, focused commits
+- Stage only relevant files for each commit
+- Ensure each commit is correct and complete
+- Use clear, descriptive commit messages
+
 ## Command Line Options
 - `-o, --output FILE`: Specify output CSV filename
 - If no output file specified, generates `video_codec_check_YYYYMMDD_HHMMSS.csv`
