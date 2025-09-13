@@ -1,21 +1,32 @@
 # Video Codec Checker
 
-This Bash script recursively searches the current directory for video files using codecs that are considered less than state-of-the-art (anything other than AV1, HEVC/H.265, or H.264/AVC). It outputs a CSV-formatted list of such files, including the detected codec and a ready-to-run FFmpeg command to re-encode them to AV1 with Opus audio in an MKV container.
+This script recursively searches the current directory for video files using codecs that are considered less than state-of-the-art (anything other than AV1, HEVC/H.265, or H.264/AVC). It outputs a CSV-formatted list of such files, including the detected codec and a ready-to-run FFmpeg command to re-encode them to AV1 with Opus audio in an MKV container.
+
+Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
 ## Requirements
 
 - **FFmpeg**: Must include `ffprobe`, `libsvtav1` (for AV1 encoding), and `libopus` (for audio encoding).
   - On macOS: Install via Homebrew with `brew install ffmpeg`.
   - Verify support: Run `ffmpeg -encoders | grep -E "(svtav1|opus)"` to confirm encoders are available.
-- **Bash**: Standard on Unix-like systems.
+- **Bash** (for Bash version): Standard on Unix-like systems.
+- **Python** (for Python version): Python 3.6+ required.
 - **realpath**: For absolute path handling (available on macOS; install coreutils if needed: `brew install coreutils`).
 
 ## Usage
 
+For Bash version:
 1. Make the script executable: `chmod +x check_video_codecs.sh`
 2. Run it in the target directory: `./check_video_codecs.sh`
 3. Specify output file: `./check_video_codecs.sh -o results.csv`
-   - If no output file is specified, a timestamped filename will be generated automatically
+
+For Python version:
+1. Run it in the target directory: `python check_video_codecs.py`
+2. Specify output file: `python check_video_codecs.py -o results.csv`
+
+Both versions:
+- If no output file is specified, a timestamped filename will be generated automatically
+- Accept a directory argument to scan a specific directory: `./check_video_codecs.sh /path/to/videos` or `python check_video_codecs.py /path/to/videos`
 
 The script outputs to a CSV file with a header row. Each row for legacy files includes:
 - **File**: Relative path to the video file.
@@ -30,7 +41,7 @@ File,Codec,FFmpeg_Command
 
 ## What It Does
 
-- **File Discovery**: Uses `find` to locate video files by extension (mp4, avi, mkv, mov, wmv, flv, webm, m4v, mpg, mpeg, 3gp, ogv).
+- **File Discovery**: Locates video files by extension (mp4, avi, mkv, mov, wmv, flv, webm, m4v, mpg, mpeg, 3gp, ogv).
 - **Codec Detection**: Queries the first video stream with `ffprobe` to identify the codec.
 - **Filtering**: Flags files not using AV1, HEVC, or H.264 as "legacy."
 - **Re-encoding Suggestion**: Generates an FFmpeg command that:
@@ -39,7 +50,7 @@ File,Codec,FFmpeg_Command
   - Outputs to MKV (flexible container for modern codecs).
   - Strips global metadata (e.g., titles, comments) with `-map_metadata -1`.
   - Uses absolute paths to ensure commands work from any directory.
-- **Safety**: Handles filenames with spaces, newlines, or special characters using null-delimited processing.
+- **Safety**: Handles filenames with spaces, newlines, or special characters properly.
 
 ## Notes
 
