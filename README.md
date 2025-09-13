@@ -28,6 +28,14 @@ Both versions:
 - If no output file is specified, a timestamped filename will be generated automatically
 - Accept a directory argument to scan a specific directory: `./check_video_codecs.sh /path/to/videos` or `python check_video_codecs.py /path/to/videos`
 
+### Environment Variables
+
+The Python version also supports environment variables for configuration:
+- `OUTPUT_FILE`: Default output CSV filename (equivalent to -o/--output argument)
+- `SCAN_DIRECTORY`: Directory to scan for video files (equivalent to directory argument)
+
+You can also use a `.env` file in the current directory to set these variables. See `.env.example` for reference.
+
 The script outputs to a CSV file with a header row. Each row for legacy files includes:
 - **File**: Relative path to the video file.
 - **Codec**: Detected video codec (e.g., "mpeg4").

@@ -11,6 +11,14 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+import os
+
+# Try to import dotenv, but handle case where it's not available
+try:
+    from dotenv import load_dotenv
+    dotenv_available = True
+except ImportError:
+    dotenv_available = False
 
 
 class VideoCodecChecker:
@@ -135,17 +143,22 @@ class VideoCodecChecker:
 
 
 def main():
+    # Load environment variables from .env file if dotenv is available
+    if dotenv_available:
+        load_dotenv()
+
     parser = argparse.ArgumentParser(
         description="Find video files using codecs less than state-of-the-art (AV1, HEVC, H.264)"
     )
     parser.add_argument(
         "-o", "--output",
+        default=os.environ.get("OUTPUT_FILE") if dotenv_available else None,
         help="Specify output CSV filename"
     )
     parser.add_argument(
         "directory",
         nargs="?",
-        default=".",
+        default=os.environ.get("SCAN_DIRECTORY", ".") if dotenv_available else ".",
         help="Directory to scan for video files (default: current directory)"
     )
 

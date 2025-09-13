@@ -1,0 +1,16 @@
+[project]
+name = "video-codec-checker"
+version = "0.1.0"
+description = "Find video files using codecs less than state-of-the-art and generate FFmpeg conversion commands"
+readme = "README.md"
+authors = [{ name = "Scott Macdonald", email = "scott.scotm@gmail.com" }]
+dependencies = [
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+check-video-codecs = "check_video_codecs:main"
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
