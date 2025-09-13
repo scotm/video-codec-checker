@@ -14,6 +14,50 @@
 - **Type checking**: `uv run mypy video_codec_checker/`
 - **Run tests**: `uv run python -m pytest tests/`
 
+## Code Quality Checks
+
+Before committing changes, always run the following checks to ensure code quality:
+
+1. **Linting**: `uv run ruff check .`
+   - Identifies syntax errors, style issues, and potential bugs
+   - Automatically fix simple issues: `uv run ruff check . --fix`
+
+2. **Formatting**: `uv run ruff format .`
+   - Ensures consistent code style across the project
+   - Automatically formats code according to PEP 8 standards
+
+3. **Type checking**: `uv run mypy video_codec_checker/`
+   - Verifies type annotations and catches type-related errors
+   - Helps prevent runtime errors by checking types at compile time
+
+4. **Testing**: `uv run python -m pytest tests/`
+   - Runs all unit tests to ensure functionality remains intact
+   - Add `-v` flag for verbose output: `uv run python -m pytest tests/ -v`
+
+## Writing Safe Changes
+
+When making changes to the codebase, follow these guidelines to ensure safety:
+
+1. **Type Annotations**:
+   - Add type hints to all function parameters and return values
+   - Use `typing` module for complex types when necessary
+   - Run mypy after adding type annotations to verify correctness
+
+2. **Unit Tests**:
+   - Write tests for new functionality
+   - Update existing tests when modifying behavior
+   - Run tests locally before committing: `uv run python -m pytest tests/`
+
+3. **Error Handling**:
+   - Handle exceptions appropriately with try/except blocks
+   - Provide meaningful error messages for debugging
+   - Test error conditions in unit tests
+
+4. **Code Validation**:
+   - Run all checks (linting, formatting, type checking, tests) before committing
+   - Fix any issues identified by the tools
+   - Ensure new code follows existing style conventions
+
 ## UV (Recommended Python Environment Manager)
 
 This project uses uv for Python dependency management. uv is a fast Python package installer and resolver:
