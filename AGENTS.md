@@ -1,12 +1,13 @@
 # Agent Guidelines for Video Codec Checker
 
 ## Commands
-- **Run script**: `./check_video_codecs.sh`
+- **Run Bash script**: `./check_video_codecs.sh`
+- **Run Python script**: `python check_video_codecs.py`
 - **Make executable**: `chmod +x check_video_codecs.sh`
-- **Output to file**: `./check_video_codecs.sh -o results.csv`
-- **Auto-generated output**: `./check_video_codecs.sh` (creates timestamped filename)
+- **Output to file**: `./check_video_codecs.sh -o results.csv` or `python check_video_codecs.py -o results.csv`
+- **Auto-generated output**: `./check_video_codecs.sh` or `python check_video_codecs.py` (creates timestamped filename)
 
-No build, lint, or test commands exist - this is a standalone Bash script.
+No build, lint, or test commands exist - this is a standalone script available in both Bash and Python implementations.
 
 ## Command Line Options
 - `-o, --output FILE`: Specify output CSV filename
@@ -14,15 +15,15 @@ No build, lint, or test commands exist - this is a standalone Bash script.
 
 ## Code Style Guidelines
 
-### Bash Scripting
-- Use `#!/bin/bash` shebang
+### Python Implementation
+- Use Python 3.6+ with proper shebang `#!/usr/bin/env python3`
 - Use lowercase variable names with underscores (e.g., `good_codecs`, `abs_file`)
-- Quote all variable expansions: `"$variable"`
-- Use arrays for lists: `GOOD_CODECS=("av1" "hevc" "h264")`
-- Handle filenames with spaces/newlines using null-delimited processing (`-print0`, `read -r -d ''`)
-- Redirect stderr to /dev/null for quiet operations: `2>/dev/null`
-- Use `realpath` for absolute path handling
-- Add comments explaining script purpose and key sections
+- Quote all string variables appropriately
+- Use sets for efficient membership testing: `GOOD_CODECS = {"av1", "hevc", "h264"}`
+- Handle filenames with spaces/newlines using Path objects
+- Use subprocess with timeouts for external command execution
+- Use pathlib for path handling instead of `realpath`
+- Add docstrings explaining class and function purpose
 
 ### FFmpeg/ffprobe Usage
 - Use `ffprobe -of default=noprint_wrappers=1:nokey=1` for clean codec extraction
@@ -30,8 +31,9 @@ No build, lint, or test commands exist - this is a standalone Bash script.
 - Detect audio channels with `-select_streams a:0 -show_entries stream=channels`
 
 ### Error Handling
-- Check for empty variables before processing: `[[ -n "$codec" ]]`
-- Use array membership tests: `[[ ! " ${array[@]} " =~ " ${value} " ]]`
+- Check for empty variables before processing
+- Use set membership tests for efficient codec filtering
+- Handle subprocess errors and timeouts appropriately
 
 ### Output
 - Use CSV format with proper escaping for special characters
