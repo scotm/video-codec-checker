@@ -12,7 +12,7 @@ No build, lint, or test commands exist - this is a standalone script available i
 ## Commit Guidelines
 
 - Break down changes into small, focused commits
-- Stage only relevant files for each commit
+- Stage only relevant parts of files for each commit (partial staging is allowed)
 - Ensure each commit is correct and complete
 - Use clear, descriptive commit messages
 
