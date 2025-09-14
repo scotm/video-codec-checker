@@ -15,8 +15,8 @@ help:
 	@echo "  format   Run ruff formatter"
 	@echo "  type     Run mypy on package"
 	@echo "  test     Run pytest"
-	@echo "  release  Create a GitHub Release for VERSION (uses gh)"
-	@echo "  release_auto  Create Release with curated + auto-generated notes"
+	@echo "  release  Create a GitHub Release for VERSION (uses gh); combines curated + auto notes by default"
+	@echo "  release_auto  Alias for release (kept for compatibility)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make check"
@@ -44,38 +44,17 @@ release:
 	@git diff --cached --quiet || (echo "ERROR: Staged changes not committed" >&2; exit 2)
 	@which gh >/dev/null 2>&1 || (echo "ERROR: GitHub CLI (gh) not found" >&2; exit 2)
 	@gh auth status >/dev/null 2>&1 || (echo "ERROR: gh not authenticated. Run: gh auth login" >&2; exit 2)
-	@tag=v$(VERSION); \
-	if git rev-parse $$tag >/dev/null 2>&1; then \
-	  echo "Tag $$tag already exists"; \
-	else \
-	  git tag -a $$tag -m "$$tag: $${TITLE:-Release}$$([ -n "$(NOTES)" ] && printf "\n\n%s" "$(NOTES)")"; \
-	  git push --tags; \
-	fi; \
-	if gh release view $$tag >/dev/null 2>&1; then \
-	  echo "GitHub Release $$tag already exists"; \
-	  gh release edit $$tag $$( [ -n "$(TITLE)" ] && echo --title "$(TITLE)" ) $$( [ -n "$(NOTES)" ] && echo --notes "$(NOTES)" || echo --generate-notes ); \
-	else \
-	  gh release create $$tag $$( [ -n "$(TITLE)" ] && echo --title "$(TITLE)" ) $$( [ -n "$(NOTES)" ] && echo --notes "$(NOTES)" || echo --generate-notes ); \
-	fi
-
-# Create a GitHub Release and append auto-generated notes to curated notes.
-# Usage: make release_auto VERSION=0.7.0 [TITLE="..."] [NOTES_FILE=release-notes-v0.7.0.md]
-release_auto:
-	@[ -n "$(VERSION)" ] || (echo "ERROR: VERSION is required (e.g., make release_auto VERSION=0.7.0)" >&2; exit 2)
-	@git diff --quiet || (echo "ERROR: Working tree has uncommitted changes" >&2; exit 2)
-	@git diff --cached --quiet || (echo "ERROR: Staged changes not committed" >&2; exit 2)
-	@which gh >/dev/null 2>&1 || (echo "ERROR: GitHub CLI (gh) not found" >&2; exit 2)
-	@gh auth status >/dev/null 2>&1 || (echo "ERROR: gh not authenticated. Run: gh auth login" >&2; exit 2)
 	@tag=v$(VERSION); prev=$$(git tag --sort=-version:refname | sed -n '2p'); repo=$$(gh repo view --json nameWithOwner -q .nameWithOwner); \
 	if ! git rev-parse $$tag >/dev/null 2>&1; then \
 	  git tag -a $$tag -m "$$tag: $${TITLE:-Release}"; \
 	  git push --tags; \
 	fi; \
-	# Build combined notes
+	# Build combined notes: curated (NOTES_FILE or NOTES) + auto-generated
+	: > .combined-notes.md; \
 	if [ -n "$(NOTES_FILE)" ]; then \
-	  cat "$(NOTES_FILE)" > .combined-notes.md; \
-	else \
-	  : > .combined-notes.md; \
+	  cat "$(NOTES_FILE)" >> .combined-notes.md; \
+	elif [ -n "$(NOTES)" ]; then \
+	  printf "%s\n" "$(NOTES)" >> .combined-notes.md; \
 	fi; \
 	printf "\n---\n\nAuto-generated notes\n\n" >> .combined-notes.md; \
 	gh api repos/$$repo/releases/generate-notes -f tag_name="$$tag" -f previous_tag_name="$$prev" --jq .body > .auto-notes.md; \
@@ -86,3 +65,7 @@ release_auto:
 	  gh release create $$tag $$( [ -n "$(TITLE)" ] && echo --title "$(TITLE)" ) --notes-file .combined-notes.md; \
 	fi; \
 	rm -f .combined-notes.md .auto-notes.md
+
+# Create a GitHub Release and append auto-generated notes to curated notes.
+# Usage: make release_auto VERSION=0.7.0 [TITLE="..."] [NOTES_FILE=release-notes-v0.7.0.md]
+release_auto: release

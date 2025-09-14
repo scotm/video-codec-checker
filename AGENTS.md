@@ -23,8 +23,8 @@
 - `make format` — run `ruff format .`
 - `make type` — run `mypy video_codec_checker/`
 - `make test` — run `pytest`
-- `make release VERSION=x.y.z TITLE="..." NOTES="..."` — create a GitHub Release for an existing tag (requires clean working tree and authenticated `gh`).
-- `make release_auto VERSION=x.y.z TITLE=\"...\" NOTES_FILE=release-notes-vx.y.z.md` — create a GitHub Release and append auto-generated notes to curated notes.
+- `make release VERSION=x.y.z TITLE="..." [NOTES="..."] [NOTES_FILE=path.md]` — create a GitHub Release, combining curated notes (string or file) with auto-generated notes by default.
+- `make release_auto ...` — alias for `release` (kept for compatibility).
 
 Notes:
 - `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
@@ -235,13 +235,10 @@ Using uv ensures dependencies are properly contained and managed without affecti
 - Set Opus bitrate based on audio channels: 48k mono, 128k stereo, 256k 5.1, 320k 7.1+
 ## Release Publishing (using GitHub CLI)
 - Verify authentication: `gh auth status`
-- Create a release from an existing tag using curated notes:
-  - `gh release create vX.Y.Z --title "<title>" --notes-file release-notes-vX.Y.Z.md`
-- Also include auto-generated notes for completeness:
-  - Generate via API: `gh api repos/<owner>/<repo>/releases/generate-notes -f tag_name='vX.Y.Z' -f previous_tag_name='vPrev' --jq .body > auto-notes-vX.Y.Z.md`
-  - Append to curated notes and update: `cat release-notes-vX.Y.Z.md > combined.md && printf "\n---\n\nAuto-generated notes\n\n" >> combined.md && cat auto-notes-vX.Y.Z.md >> combined.md && gh release edit vX.Y.Z --notes-file combined.md`
-  - Alternatively: `gh release edit vX.Y.Z --generate-notes` (this overwrites notes with generated content; prefer the combined approach above)
-- Edit an existing release title/notes later: `gh release edit vX.Y.Z --title "<title>" --notes-file <file>.md`
+- Preferred path: use `make release` (combines curated + auto-generated notes by default).
+  - Example: `make release VERSION=0.7.5 TITLE=\"v0.7.5: feature\" NOTES_FILE=notes-0.7.5.md`
+- Manual alternative (if needed):
+  - Create release from an existing tag with `--notes-file`, then optionally append auto notes using `gh api ... releases/generate-notes` and `gh release edit ... --notes-file`.
 
 ## Pre-commit Hooks
 - This repo includes a `.pre-commit-config.yaml` that blocks committing generated CSV outputs: `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv`.
