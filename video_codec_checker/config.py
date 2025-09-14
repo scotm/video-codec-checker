@@ -43,4 +43,5 @@ def load_env_config() -> dict:
         "output_file": os.environ.get("OUTPUT_FILE"),
         "scan_directory": os.environ.get("SCAN_DIRECTORY", "."),
         "delete_original": _to_bool(os.environ.get("DELETE_ORIGINAL"), False),
+        "trash_original": _to_bool(os.environ.get("TRASH_ORIGINAL"), False),
     }

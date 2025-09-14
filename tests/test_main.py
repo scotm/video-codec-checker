@@ -76,6 +76,35 @@ class TestMainScriptOutput(unittest.TestCase):
             self.assertIn("run_and_cleanup", content)
             self.assertIn("ffmpeg CMD1", content)
 
+    def test_generates_script_with_trash_flag(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "out.csv")
+            sh_path = os.path.join(tmpdir, "convert.sh")
+
+            with patch(
+                "video_codec_checker.main.get_video_files",
+                return_value=[Path("a.avi")],
+            ), patch(
+                "video_codec_checker.main.probe_video_metadata",
+                return_value=("mpeg4", 2),
+            ), patch(
+                "video_codec_checker.main.generate_ffmpeg_command",
+                return_value="ffmpeg CMD1",
+            ), patch(
+                "video_codec_checker.main.get_output_path",
+                return_value=Path("/abs/out.mkv"),
+            ):
+                checker = VideoCodecChecker(csv_path)
+                count = checker.process_files(
+                    directory=".", jobs=1, script_file=sh_path, trash_original=True
+                )
+
+            self.assertEqual(count, 1)
+            with open(sh_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn("cleanup_source", content)
+            self.assertIn("TRASH_MODE=1", content)
+
 
 if __name__ == "__main__":
     unittest.main()
