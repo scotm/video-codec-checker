@@ -94,7 +94,7 @@ class TestMainScriptOutput(unittest.TestCase):
                 "video_codec_checker.main.get_output_path",
                 return_value=Path("/abs/out.mkv"),
             ), patch(
-                "video_codec_checker.main.which",
+                "video_codec_checker.script_writer.which",
                 side_effect=lambda name: "/usr/bin/trash" if name == "trash" else None,
             ):
                 checker = VideoCodecChecker(csv_path)
