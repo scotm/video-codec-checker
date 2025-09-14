@@ -120,9 +120,7 @@ def main() -> None:
     parser.add_argument(
         "-s",
         "--script",
-        help=(
-            "Write a shell script with the generated FFmpeg commands; not executed"
-        ),
+        help=("Write a shell script with the generated FFmpeg commands; not executed"),
     )
     parser.add_argument(
         "directory",

@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: forbid-generated-csv
+        name: Forbid committing generated CSV outputs
+        entry: bash -lc 'echo "Refusing to commit generated CSV files. Use .gitignore or artifacts."; exit 1'
+        language: system
+        files: '(^|/)(video_codec_check_.*\.csv|test_.*\.csv|.*_conversions\.csv)$'
+        stages: [commit]
+

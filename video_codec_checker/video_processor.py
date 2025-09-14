@@ -31,11 +31,7 @@ def get_video_files(
     allowed = {ext.lower() for ext in video_extensions}
     path = Path(directory)
 
-    files = [
-        p
-        for p in path.rglob("*")
-        if p.is_file() and p.suffix.lower() in allowed
-    ]
+    files = [p for p in path.rglob("*") if p.is_file() and p.suffix.lower() in allowed]
 
     return sorted(set(files))  # Remove duplicates and sort
 

@@ -18,15 +18,19 @@ class TestMainScriptOutput(unittest.TestCase):
             sh_path = os.path.join(tmpdir, "convert.sh")
 
             # Patch file discovery and metadata probing
-            with patch(
-                "video_codec_checker.main.get_video_files",
-                return_value=[Path("a.avi"), Path("b.mkv")],
-            ), patch(
-                "video_codec_checker.main.probe_video_metadata",
-                side_effect=[("mpeg4", 2), ("h264", 2)],
-            ), patch(
-                "video_codec_checker.main.generate_ffmpeg_command",
-                side_effect=["ffmpeg CMD1"],
+            with (
+                patch(
+                    "video_codec_checker.main.get_video_files",
+                    return_value=[Path("a.avi"), Path("b.mkv")],
+                ),
+                patch(
+                    "video_codec_checker.main.probe_video_metadata",
+                    side_effect=[("mpeg4", 2), ("h264", 2)],
+                ),
+                patch(
+                    "video_codec_checker.main.generate_ffmpeg_command",
+                    side_effect=["ffmpeg CMD1"],
+                ),
             ):
                 checker = VideoCodecChecker(csv_path)
                 count = checker.process_files(
