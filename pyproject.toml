@@ -4,6 +4,7 @@ version = "0.3.0"
 description = "Find video files using codecs less than state-of-the-art and generate FFmpeg conversion commands"
 readme = "README.md"
 authors = [{ name = "Scott Macdonald", email = "scott.scotm@gmail.com" }]
+requires-python = ">=3.10"
 dependencies = [
     "python-dotenv>=1.0.0",
     "PyYAML>=6.0",
