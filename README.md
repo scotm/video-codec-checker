@@ -10,7 +10,7 @@ Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs
   - On macOS: Install via Homebrew with `brew install ffmpeg`.
   - Verify support: Run `ffmpeg -encoders | grep -E "(svtav1|opus)"` to confirm encoders are available.
 - **Bash** (for Bash version): Standard on Unix-like systems.
-- **Python** (for Python version): Python 3.6+ required.
+- **Python** (for Python version): Python 3.10+ required.
 - **realpath**: For absolute path handling (available on macOS; install coreutils if needed: `brew install coreutils`).
 - **uv** (recommended): Python package manager for handling dependencies (install via `brew install uv`).
 
