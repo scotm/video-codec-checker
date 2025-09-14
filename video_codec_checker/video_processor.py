@@ -79,13 +79,15 @@ def get_audio_channels(file_path: Path) -> int:
         return 0
 
 
-def probe_video_metadata(file_path: Path) -> tuple[str | None, int]:
+def probe_video_metadata(
+    file_path: Path, ffprobe_args: list[str] | None = None
+) -> tuple[str | None, int]:
     """Probe both video codec and audio channels using a single ffprobe call.
 
     Returns a tuple of (video_codec or None, audio_channels as int).
     """
     try:
-        cmd = [
+        base = [
             "ffprobe",
             "-v",
             "quiet",
@@ -93,11 +95,19 @@ def probe_video_metadata(file_path: Path) -> tuple[str | None, int]:
             "stream=index,codec_type,codec_name,channels",
             "-of",
             "json",
-            str(file_path),
         ]
+        cmd = base + (ffprobe_args or []) + [str(file_path)]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         if result.returncode != 0 or not result.stdout:
-            return None, 0
+            # Fallback: retry without extra args if we used any fast-probe flags
+            if ffprobe_args:
+                result = subprocess.run(
+                    base + [str(file_path)], capture_output=True, text=True, timeout=30
+                )
+                if result.returncode != 0 or not result.stdout:
+                    return None, 0
+            else:
+                return None, 0
 
         data = json.loads(result.stdout)
         streams = data.get("streams", [])

@@ -37,6 +37,7 @@ class VideoCodecChecker:
         script_file: str | None = None,
         delete_original: bool = False,
         trash_original: bool = False,
+        ffprobe_args: list[str] | None = None,
     ) -> int:
         """Process all video files and generate CSV output."""
         video_files = get_video_files(directory)
@@ -102,7 +103,7 @@ class VideoCodecChecker:
             max_workers = jobs if jobs and jobs > 0 else min(32, cpu_workers)
 
             def task(fp: Path) -> tuple[Path, str | None, int]:
-                codec, channels = probe_video_metadata(fp)
+                codec, channels = probe_video_metadata(fp, ffprobe_args)
                 return fp, codec, channels
 
             # Run metadata probing with optional concurrency
@@ -178,6 +179,31 @@ def main() -> None:
         help=("Write a shell script with the generated FFmpeg commands; not executed"),
     )
     parser.add_argument(
+        "--fast-probe",
+        action="store_true",
+        default=env_config.get("fast_probe", False),
+        help=(
+            "Use ffprobe with reduced -probesize/-analyzeduration for faster "
+            "detection; falls back to full probe if insufficient"
+        ),
+    )
+    parser.add_argument(
+        "--probe-size",
+        default=env_config.get("ffprobe_probesize") or "5M",
+        help=(
+            "ffprobe -probesize value (used only with --fast-probe); "
+            "accepts size suffixes like 1M"
+        ),
+    )
+    parser.add_argument(
+        "--analyze-duration",
+        default=env_config.get("ffprobe_analyzeduration") or "10M",
+        help=(
+            "ffprobe -analyzeduration value (used only with --fast-probe); "
+            "accepts microseconds; supports suffixes like 10M"
+        ),
+    )
+    parser.add_argument(
         "-r",
         "--delete-original",
         action="store_true",
@@ -214,12 +240,23 @@ def main() -> None:
 
     try:
         checker = VideoCodecChecker(args.output)
+        # Build ffprobe args for fast-probe if requested
+        fast_args: list[str] | None = None
+        if args.fast_probe:
+            fast_args = [
+                "-probesize",
+                str(args.probe_size),
+                "-analyzeduration",
+                str(args.analyze_duration),
+            ]
+
         processed_count = checker.process_files(
             args.directory,
             jobs=args.jobs,
             script_file=args.script,
             delete_original=args.delete_original,
             trash_original=args.trash_original,
+            ffprobe_args=fast_args,
         )
         print(f"Found {processed_count} files that need conversion.")
     except KeyboardInterrupt:

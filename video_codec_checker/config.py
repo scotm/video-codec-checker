@@ -44,4 +44,7 @@ def load_env_config() -> dict:
         "scan_directory": os.environ.get("SCAN_DIRECTORY", "."),
         "delete_original": _to_bool(os.environ.get("DELETE_ORIGINAL"), False),
         "trash_original": _to_bool(os.environ.get("TRASH_ORIGINAL"), False),
+        "fast_probe": _to_bool(os.environ.get("FAST_PROBE"), False),
+        "ffprobe_probesize": os.environ.get("FFPROBE_PROBESIZE"),
+        "ffprobe_analyzeduration": os.environ.get("FFPROBE_ANALYZEDURATION"),
     }
