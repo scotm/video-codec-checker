@@ -12,6 +12,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
+from shutil import which
 
 from video_codec_checker.config import load_env_config, load_yaml_config
 from video_codec_checker.ffmpeg_generator import (
@@ -50,7 +51,21 @@ class VideoCodecChecker:
             writer.writeheader()
 
             script_handle = None
+            selected_trash: tuple[str, str] | None = None
             if script_file:
+                if trash_original:
+                    if which("trash"):
+                        selected_trash = ("trash", "")
+                    elif which("gio"):
+                        selected_trash = ("gio", "trash")
+                    elif which("trash-put"):
+                        selected_trash = ("trash-put", "")
+                    else:
+                        raise RuntimeError(
+                            "--trash-original requested, but no trash utilities found. "
+                            "Install 'trash', 'gio' (with 'trash'), or 'trash-put'; "
+                            "or use --delete-original."
+                        )
                 script_handle = open(script_file, "w", encoding="utf-8")
                 script_handle.write("#!/usr/bin/env bash\n")
                 script_handle.write("set -euo pipefail\n")
@@ -89,14 +104,28 @@ class VideoCodecChecker:
                         "  set -e\n"
                         "  if [ $rc -eq 0 ] && [ -f \"$3\" ]; then\n"
                         "    echo \"[CLEANUP] Removing source: $2\"\n"
-                        "    cleanup_source \"$2\"\n"
+                        "    if [ \"$USE_TRASH\" = \"1\" ]; then\n"
+                        "      if [ -n \"$TRASH_ARG\" ]; then\n"
+                        "        \"$TRASH_BIN\" \"$TRASH_ARG\" \"$2\" || true\n"
+                        "      else\n"
+                        "        \"$TRASH_BIN\" \"$2\" || true\n"
+                        "      fi\n"
+                        "    else\n"
+                        "      rm -f -- \"$2\"\n"
+                        "    fi\n"
                         "  fi\n"
                         "  return $rc\n"
                         "}\n\n"
                     )
-                    script_handle.write(
-                        f"export TRASH_MODE={'1' if trash_original else '0'}\n\n"
-                    )
+                    if trash_original:
+                        # selected_trash is ensured when trash_original is True
+                        assert selected_trash is not None
+                        bin_name, arg = selected_trash
+                        script_handle.write("export USE_TRASH=1\n")
+                        script_handle.write(f"export TRASH_BIN={bin_name}\n")
+                        script_handle.write(f"export TRASH_ARG={arg}\n\n")
+                    else:
+                        script_handle.write("export USE_TRASH=0\n\n")
 
             # Determine worker count
             cpu_workers = os.cpu_count() or 1

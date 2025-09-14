@@ -93,6 +93,9 @@ class TestMainScriptOutput(unittest.TestCase):
             ), patch(
                 "video_codec_checker.main.get_output_path",
                 return_value=Path("/abs/out.mkv"),
+            ), patch(
+                "video_codec_checker.main.which",
+                side_effect=lambda name: "/usr/bin/trash" if name == "trash" else None,
             ):
                 checker = VideoCodecChecker(csv_path)
                 count = checker.process_files(
@@ -103,7 +106,8 @@ class TestMainScriptOutput(unittest.TestCase):
             with open(sh_path, "r", encoding="utf-8") as f:
                 content = f.read()
             self.assertIn("cleanup_source", content)
-            self.assertIn("TRASH_MODE=1", content)
+            self.assertIn("USE_TRASH=1", content)
+            self.assertIn("TRASH_BIN=trash", content)
 
 
 if __name__ == "__main__":
