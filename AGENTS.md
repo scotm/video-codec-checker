@@ -257,3 +257,13 @@ Using uv ensures dependencies are properly contained and managed without affecti
 ## Pre-commit Hooks
 - This repo includes a `.pre-commit-config.yaml` that blocks committing generated CSV outputs: `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv`.
 - Install: `uv pip install -e .[dev] && uv run pre-commit install`
+
+## Git Flow Procedure
+- Use the `develop` branch for ongoing development work
+- Create feature branches from `develop` for new functionality: `git checkout -b feature/feature-name`
+- Merge feature branches back to `develop` via pull requests
+- Create release branches from `develop` when preparing for a release: `git checkout -b release/vX.Y.Z`
+- Update version in `pyproject.toml` and ensure `CHANGELOG.md` and `README.md` "What's New" sections are current
+- After release is complete, merge release branch to `main` and tag with `vX.Y.Z`
+- Delete release branch after merging
+- For hotfixes, create branches from `main`: `git checkout -b hotfix/fix-name`

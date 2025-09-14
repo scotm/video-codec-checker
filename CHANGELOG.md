@@ -12,7 +12,7 @@ v0.7.4 - 2025-09-14
 v0.7.3 - 2025-09-14
 -------------------
 - Report: Add `Bits_Per_Pixel` column to CSV; compute via ffprobe using stream width/height/fps/bit_rate with fallback to format bit_rate.
-- Report: Include `h264` videos in the CSV to assess codec efficiency; `FFmpeg_Command` remains empty for h264.
+- Report: Include `h264` videos in the CSV to assess codec efficiency; `FFmpeg_Command` remains empty for h264 (changed in v0.7.4).
 - Script generation: Only created for non-good codecs (legacy formats) and opened lazily; no script file is created when zero conversions are needed.
 - No CLI changes; tests updated; ruff/mypy/pytest all passing.
 
