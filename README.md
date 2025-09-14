@@ -124,6 +124,29 @@ To run these tools:
 
 These tools help maintain code quality and catch potential issues early in the development process.
 
+## GitHub CLI & Releases
+
+To publish GitHub Releases from the command line, use GitHub CLI (`gh`).
+
+- Install GitHub CLI:
+  - macOS (Homebrew): `brew install gh`
+  - Linux (Debian/Ubuntu): `sudo apt-get install gh` (or see https://github.com/cli/cli#installation)
+  - Windows: `winget install --id GitHub.cli` (or see link above)
+
+- Authenticate once:
+  - `gh auth login`
+  - Choose GitHub.com, HTTPS, and sign in via browser or token
+  - Verify with: `gh auth status`
+
+- Create a release from an existing tag (example: v0.3.0):
+  - Title + notes: `gh release create v0.3.0 --title "v0.3.0: single ffprobe, concurrency, explicit mapping, no-audio handling" --notes "See README and CHANGELOG for details."`
+  - Or use generated notes: `gh release create v0.3.0 --generate-notes`
+  - To edit later: `gh release edit v0.3.0 --title "..." --notes-file CHANGELOG.md`
+
+Notes:
+- Ensure the tag exists locally and is pushed: `git tag -a vX.Y.Z -m "..." && git push --tags`.
+- In this repo we tag as part of releases; the command above just publishes a GitHub Release entry for that tag.
+
 ## License
 
 This script is provided as-is for personal use. Ensure compliance with FFmpeg and codec licensing.

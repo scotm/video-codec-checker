@@ -1,5 +1,8 @@
 # Agent Guidelines for Video Codec Checker
 
+## Assumptions
+- GitHub CLI (`gh`) is installed and authenticated. You may directly use `gh` to create or edit GitHub Releases without additional setup in future sessions.
+
 ## Commands
 - **Run Bash script**: `./check_video_codecs.sh`
 - **Run Python script**: `python check_video_codecs.py`
@@ -109,3 +112,8 @@ Using uv ensures dependencies are properly contained and managed without affecti
 - Include headers for clarity
 - Generate complete, quoted FFmpeg commands ready to run
 - Set Opus bitrate based on audio channels: 48k mono, 128k stereo, 256k 5.1, 320k 7.1+
+## Release Publishing (using GitHub CLI)
+- Verify authentication: `gh auth status`
+- Create a release from an existing tag: `gh release create vX.Y.Z --title "<title>" --notes "<summary>"`
+- Optionally generate notes: `gh release create vX.Y.Z --generate-notes`
+- Edit an existing release: `gh release edit vX.Y.Z --title "<title>" --notes-file CHANGELOG.md`
