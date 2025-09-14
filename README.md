@@ -4,6 +4,12 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.3.0
+- Single ffprobe call (JSON) to retrieve both video codec and audio channel count
+- Optional concurrency with `--jobs` to probe files in parallel (defaults to CPU count, capped at 32)
+- Explicit FFmpeg mapping of primary streams and `-an` when no audio is present
+- Continues streaming CSV writing for large directories
+
 ## What's New in 0.2.1
 - Faster file discovery using a single directory walk and suffix filtering
 - Robust FFmpeg command quoting that safely handles single quotes in paths

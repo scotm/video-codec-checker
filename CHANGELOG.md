@@ -3,6 +3,13 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.3.0 - 2025-09-14
+-------------------
+- Single ffprobe call (JSON) to obtain both video codec and audio channel count
+- Optional concurrency via `--jobs` to parallelize metadata probing (default up to CPU count, capped at 32)
+- Explicit FFmpeg stream mapping (`-map 0:v:0`, `-map 0:a:0?`) and `-an` when no audio
+- Continue streaming CSV writing during processing
+
 v0.2.1 - 2025-09-14
 -------------------
 - Faster file discovery using a single directory walk and suffix filtering
@@ -17,4 +24,3 @@ v0.2.0 - 2025-09-13
 - Python packaging, CLI entry point, and test suite
 - Config via env and YAML
 - Initial codec check and FFmpeg command generation
-

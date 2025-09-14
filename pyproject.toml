@@ -1,6 +1,6 @@
 [project]
 name = "video-codec-checker"
-version = "0.2.1"
+version = "0.3.0"
 description = "Find video files using codecs less than state-of-the-art and generate FFmpeg conversion commands"
 readme = "README.md"
 authors = [{ name = "Scott Macdonald", email = "scott.scotm@gmail.com" }]
