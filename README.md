@@ -13,24 +13,7 @@ Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs
 - Add `scripts/convert_template.sh` runner to execute command files with logging and optional dry-run
 - Ignore generated conversion CSV outputs via `.gitignore`
 
-## What's New in 0.4.0
-- Add `--script/-s` to write a runnable shell script containing all generated FFmpeg commands (not executed automatically)
-- Script includes shebang and `set -euo pipefail` for safety and reliability
-- Commands stream to the script alongside the CSV as files are processed
-
-## What's New in 0.3.0
-- Single ffprobe call (JSON) to retrieve both video codec and audio channel count
-- Optional concurrency with `--jobs` to probe files in parallel (defaults to CPU count, capped at 32)
-- Explicit FFmpeg mapping of primary streams and `-an` when no audio is present
-- Continues streaming CSV writing for large directories
-
-## What's New in 0.2.1
-- Faster file discovery using a single directory walk and suffix filtering
-- Robust FFmpeg command quoting that safely handles single quotes in paths
-- Avoids unnecessary ffprobe calls for files already using good codecs
-- Streams CSV writing during processing to reduce memory usage on large sets
-- Safer default Opus bitrate (128k) when audio channel count is unknown
-- Updated Python requirement to 3.10+
+<!-- Older release notes are available in CHANGELOG.md. Keep only the last two here. -->
 
 ## Requirements
 

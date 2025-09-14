@@ -29,6 +29,9 @@ Notes:
 - `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
 - The `release` target assumes the tag `v$(VERSION)` exists or will be created and pushed.
 
+## Documentation Conventions
+- README should list "What's New" only for the last two releases. Older release notes belong in `CHANGELOG.md`.
+
 ## Code Quality Checks
 
 Before committing changes, always run the following checks to ensure code quality:
