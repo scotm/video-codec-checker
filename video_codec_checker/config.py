@@ -7,6 +7,13 @@ import yaml
 from dotenv import load_dotenv
 
 
+def _to_bool(val: str | None, default: bool = False) -> bool:
+    if val is None:
+        return default
+    v = val.strip().lower()
+    return v in {"1", "true", "yes", "on"}
+
+
 def load_yaml_config(config_file: str | None = None) -> dict:
     """Load configuration from YAML file."""
     # Use provided config file or default location
@@ -35,4 +42,5 @@ def load_env_config() -> dict:
     return {
         "output_file": os.environ.get("OUTPUT_FILE"),
         "scan_directory": os.environ.get("SCAN_DIRECTORY", "."),
+        "delete_original": _to_bool(os.environ.get("DELETE_ORIGINAL"), False),
     }

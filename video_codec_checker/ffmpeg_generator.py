@@ -28,13 +28,21 @@ def get_audio_bitrate(channels: int) -> str:
     return "320k"  # 7.1 or higher
 
 
+def get_output_path(input_file: Path) -> Path:
+    """Return the destination path for a converted file.
+
+    Example: /dir/video.mp4 -> /dir/video_av1.mkv
+    """
+    return input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
+
+
 def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
     """Generate FFmpeg command to convert video to AV1 and audio to Opus.
 
     - Explicitly maps primary video stream and optional primary audio stream
     - Uses -an when no audio is present
     """
-    output_file = input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
+    output_file = get_output_path(input_file)
     q_input = _single_quote(str(input_file))
     q_output = _single_quote(str(output_file))
 
