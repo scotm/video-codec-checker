@@ -146,6 +146,16 @@ This project now includes development tools for code quality assurance:
 - **Type checking**: Uses MyPy for static type checking
 - **Testing**: Uses pytest for running tests
 
+## Branching Strategy
+
+This project uses Git Flow for branch management:
+
+- **main**: Production-ready code with stable releases
+- **develop**: Integration branch for features and development work
+- **feature/***: Feature branches for new functionality, created from develop
+- **release/***: Release preparation branches, created from develop
+- **hotfix/***: Emergency fixes for production issues, created from main
+
 To run these tools:
 1. Install development dependencies: `uv pip install -e .[dev]`
 2. Run linting: `uv run ruff check .`

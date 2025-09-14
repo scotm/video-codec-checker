@@ -259,3 +259,19 @@ Using uv ensures dependencies are properly contained and managed without affecti
 ## Pre-commit Hooks
 - This repo includes a `.pre-commit-config.yaml` that blocks committing generated CSV outputs: `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv`.
 - Install: `uv pip install -e .[dev] && uv run pre-commit install`
+
+## Git Flow Branching Strategy
+
+This project uses Git Flow for organizing branches and commits:
+
+- **Main branch**: Contains production-ready code that can be released
+- **Develop branch**: Integration branch for features and development work
+- **Feature branches**: Used for developing new features, branched from develop and merged back to develop
+- **Release branches**: Used for preparing new production releases, branched from develop
+- **Hotfix branches**: Used for quickly addressing necessary changes in main, branched from main
+
+When creating new features, use the following workflow:
+1. Create a feature branch from develop: `git checkout develop && git checkout -b feature/your-feature-name`
+2. Develop your feature and make commits
+3. Push the feature branch to remote: `git push origin feature/your-feature-name`
+4. Create a pull request to merge feature branch into develop

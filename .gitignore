@@ -66,3 +66,5 @@ test_*.csv
 *_conversions.csv
 # Editor/OS lock files
 .~lock.*
+\n+# Local handoff notes
+HANDOFF*.md

@@ -76,10 +76,11 @@ class VideoCodecChecker:
                 # Compute bits-per-pixel for reporting
                 bpp = compute_bpp(abs_in, ffprobe_args) or 0.0
 
-                # Generate conversion command only for legacy codecs (not h264)
-                ffmpeg_cmd = ""
+                # Always generate an FFmpeg command for CSV convenience
+                ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
+
+                # Script generation only for legacy codecs (not h264)
                 if codec and codec not in GOOD_CODECS:
-                    ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
                     if want_script and script is None:
                         trash_cfg = resolve_trash_config(trash_original)
                         script = ScriptWriter(
