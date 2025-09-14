@@ -58,7 +58,7 @@ def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
         "-c:v",
         "libsvtav1",
         "-preset",
-        "4",
+        "3",
         "-crf",
         "32",
     ]

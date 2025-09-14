@@ -35,7 +35,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         channels = 1
         expected = (
             "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
-            "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 48k "
+            "-preset 3 -crf 32 -map 0:a:0? -c:a libopus -b:a 48k "
             "'/path/to/video_av1.mkv'"
         )
         self.assertEqual(generate_ffmpeg_command(input_file, channels), expected)
@@ -44,7 +44,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         channels = 2
         expected = (
             "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
-            "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 128k "
+            "-preset 3 -crf 32 -map 0:a:0? -c:a libopus -b:a 128k "
             "'/path/to/video_av1.mkv'"
         )
         self.assertEqual(generate_ffmpeg_command(input_file, channels), expected)
@@ -53,7 +53,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         channels = 6
         expected = (
             "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
-            "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 256k "
+            "-preset 3 -crf 32 -map 0:a:0? -c:a libopus -b:a 256k "
             "'/path/to/video_av1.mkv'"
         )
         self.assertEqual(generate_ffmpeg_command(input_file, channels), expected)
@@ -62,7 +62,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         channels = 0
         expected = (
             "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
-            "-preset 4 -crf 32 -an '/path/to/video_av1.mkv'"
+            "-preset 3 -crf 32 -an '/path/to/video_av1.mkv'"
         )
         self.assertEqual(generate_ffmpeg_command(input_file, channels), expected)
 
