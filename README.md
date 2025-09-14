@@ -92,12 +92,13 @@ The default configuration file location is `~/.config/check-video-codecs.yml`. Y
 The script outputs to a CSV file with a header row. Each row for legacy files includes:
 - **File**: Relative path to the video file.
 - **Codec**: Detected video codec (e.g., "mpeg4").
+- **Audio_Channels**: Detected number of audio channels (0 if unknown).
 - **FFmpeg_Command**: A complete, quoted command to re-encode the file.
 
 Example output:
 ```
-File,Codec,FFmpeg_Command
-"./old_video.avi","mpeg4","ffmpeg -y -i '/absolute/path/old_video.avi' -map_metadata -1 -c:v libsvtav1 -preset 3 -crf 32 -c:a libopus -b:a 128k '/absolute/path/old_video_av1.mkv'"
+File,Codec,Audio_Channels,FFmpeg_Command
+"./old_video.avi","mpeg4",2,"ffmpeg -y -i '/absolute/path/old_video.avi' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 -preset 3 -crf 32 -map 0:a:0? -c:a libopus -b:a 128k '/absolute/path/old_video_av1.mkv'"
 ```
 
 ## What It Does

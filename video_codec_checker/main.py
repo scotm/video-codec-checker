@@ -46,7 +46,7 @@ class VideoCodecChecker:
 
         processed_count = 0
         with open(self.output_file, "w", newline="", encoding="utf-8") as csvfile:
-            fieldnames = ["File", "Codec", "FFmpeg_Command"]
+            fieldnames = ["File", "Codec", "Audio_Channels", "FFmpeg_Command"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
@@ -155,6 +155,7 @@ class VideoCodecChecker:
                             {
                                 "File": str(file_path),
                                 "Codec": codec,
+                                "Audio_Channels": channels,
                                 "FFmpeg_Command": ffmpeg_cmd,
                             }
                         )

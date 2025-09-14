@@ -109,6 +109,37 @@ class TestMainScriptOutput(unittest.TestCase):
             self.assertIn("USE_TRASH=1", content)
             self.assertIn("TRASH_BIN=trash", content)
 
+    def test_csv_includes_audio_channels(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "out.csv")
+            sh_path = os.path.join(tmpdir, "convert.sh")
+
+            with (
+                patch(
+                    "video_codec_checker.main.get_video_files",
+                    return_value=[Path("a.avi")],
+                ),
+                patch(
+                    "video_codec_checker.main.probe_video_metadata",
+                    return_value=("mpeg4", 2),
+                ),
+                patch(
+                    "video_codec_checker.main.generate_ffmpeg_command",
+                    return_value="ffmpeg CMD1",
+                ),
+            ):
+                checker = VideoCodecChecker(csv_path)
+                _ = checker.process_files(directory=".", jobs=1, script_file=sh_path)
+
+            with open(csv_path, "r", encoding="utf-8") as f:
+                header = f.readline().strip().split(",")
+                row = f.readline().strip().split(",")
+            # Header contains Audio_Channels
+            self.assertIn("Audio_Channels", header)
+            # Value is 2 for our stub
+            idx = header.index("Audio_Channels")
+            self.assertEqual(row[idx], "2")
+
 
 if __name__ == "__main__":
     unittest.main()
