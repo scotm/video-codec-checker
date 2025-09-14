@@ -155,6 +155,33 @@ When making changes to the codebase, follow these guidelines to ensure safety:
   - Use `make release_auto` to create releases with curated notes and append GitHub auto-generated notes; avoid committing temporary note files.
   - Push annotated tags before creating the GitHub Release; keep working tree clean.
 
+## Testing Guidance
+
+- Isolate external processes:
+  - Never invoke real `ffprobe`/`ffmpeg` or rely on network in unit tests.
+  - Patch `subprocess.run` to return deterministic `CompletedProcess` outputs (stdout/stderr/returncode).
+  - For trash detection, patch `shutil.which` (e.g., return a fake path for `trash` or `gio`).
+- Control file discovery:
+  - Patch `get_video_files` to return a small, fixed list of `Path` instances; do not scan the real filesystem.
+  - When testing CSV/script output, write into `tempfile.TemporaryDirectory()` and assert on file contents.
+- Concurrency determinism:
+  - Prefer `jobs=1` in tests to make ordering predictable.
+  - If ordering matters, sort inputs or assert based on sets rather than sequence positions.
+  - Where appropriate, inject a custom `probe_func` into executors to avoid threading concerns entirely.
+- Patching strategy:
+  - Tests often patch `video_codec_checker.main.*` symbols; keep that surface stable and funnel behavior via dependency injection (e.g., pass `probe_video_metadata` into helpers) so patches take effect.
+  - Avoid patching deep internals of helpers; patch the seam used by `main`.
+- Script generation assertions:
+  - Verify presence of shebang, `set -euo pipefail`, and wrappers like `run_and_cleanup`.
+  - For cleanup flags, assert that `USE_TRASH`, `TRASH_BIN/ARG`, and `run_and_cleanup` forms appear as expected.
+  - Test quoting by including paths with spaces and single quotes in inputs and verifying the script or command string.
+- Type safety in tests:
+  - Keep the codebase `mypy`-clean; avoid `typing.Any`. If unavoidable, isolate and document why.
+  - Prefer dataclasses (`FileProbeResult`, `CsvRow`) and typed helpers for fixtures.
+- Artifacts & pre-commit:
+  - Do not commit generated CSVs or temporary note files; `.pre-commit-config.yaml` blocks them.
+  - Use temp dirs and clean up after tests.
+
 ## UV (Recommended Python Environment Manager)
 
 This project uses uv for Python dependency management. uv is a fast Python package installer and resolver:
