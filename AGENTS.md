@@ -109,6 +109,7 @@ When making changes to the codebase, follow these guidelines to ensure safety:
 1. **Type Annotations**:
    - Add type hints to all function parameters and return values
    - Use `typing` module for complex types when necessary
+   - Avoid `typing.Any` wherever possible; prefer precise types, `Protocol`s, `TypeVar`/generics, and unions. If `Any` is truly unavoidable, constrain and document the rationale.
    - Run mypy after adding type annotations to verify correctness
 
 2. **Unit Tests**:
