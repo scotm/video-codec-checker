@@ -3,6 +3,12 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.4.0 - 2025-09-14
+-------------------
+- Add `--script` (`-s`) option to write a runnable shell script containing the generated FFmpeg commands
+- Script includes shebang and `set -euo pipefail`; commands are not executed automatically
+- Commands stream to the script alongside CSV output as files are processed
+
 v0.3.0 - 2025-09-14
 -------------------
 - Single ffprobe call (JSON) to obtain both video codec and audio channel count

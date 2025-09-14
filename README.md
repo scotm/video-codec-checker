@@ -4,6 +4,11 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.4.0
+- Add `--script/-s` to write a runnable shell script containing all generated FFmpeg commands (not executed automatically)
+- Script includes shebang and `set -euo pipefail` for safety and reliability
+- Commands stream to the script alongside the CSV as files are processed
+
 ## What's New in 0.3.0
 - Single ffprobe call (JSON) to retrieve both video codec and audio channel count
 - Optional concurrency with `--jobs` to probe files in parallel (defaults to CPU count, capped at 32)
@@ -38,11 +43,17 @@ For Bash version:
 For Python version:
 1. Run it in the target directory: `python check_video_codecs.py`
 2. Specify output file: `python check_video_codecs.py -o results.csv`
+3. Write a shell script with commands: `python check_video_codecs.py -s convert.sh`
+   - Make it executable: `chmod +x convert.sh`
+   - Run it manually when ready: `./convert.sh`
 3. Parallelize metadata probing: `python check_video_codecs.py -j 8`
 
 For Python version with uv (recommended):
 1. Run with uv: `uv run check-video-codecs`
 2. Specify output file: `uv run check-video-codecs -o results.csv`
+3. Write a shell script with commands: `uv run check-video-codecs -s convert.sh`
+   - Make it executable: `chmod +x convert.sh`
+   - Run it manually when ready: `./convert.sh`
 3. Parallelize metadata probing: `uv run check-video-codecs -j 8`
 
 Both versions:
