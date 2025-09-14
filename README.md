@@ -4,6 +4,14 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.2.1
+- Faster file discovery using a single directory walk and suffix filtering
+- Robust FFmpeg command quoting that safely handles single quotes in paths
+- Avoids unnecessary ffprobe calls for files already using good codecs
+- Streams CSV writing during processing to reduce memory usage on large sets
+- Safer default Opus bitrate (128k) when audio channel count is unknown
+- Updated Python requirement to 3.10+
+
 ## Requirements
 
 - **FFmpeg**: Must include `ffprobe`, `libsvtav1` (for AV1 encoding), and `libopus` (for audio encoding).
