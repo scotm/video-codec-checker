@@ -37,6 +37,7 @@ class VideoCodecChecker:
         script_file: str | None = None,
         delete_original: bool = False,
         trash_original: bool = False,
+        ffprobe_args: list[str] | None = None,
     ) -> int:
         """Process all video files and generate CSV output."""
         video_files = get_video_files(directory)
@@ -101,15 +102,31 @@ class VideoCodecChecker:
             cpu_workers = os.cpu_count() or 1
             max_workers = jobs if jobs and jobs > 0 else min(32, cpu_workers)
 
-            def task(fp: Path) -> tuple[Path, str | None, int]:
-                codec, channels = probe_video_metadata(fp)
-                return fp, codec, channels
+            def _init_stats() -> dict:
+                return {
+                    "fast_attempted": 0,
+                    "fast_succeeded": 0,
+                    "fast_fallbacks": 0,
+                    "fast_time": 0.0,
+                    "full_probes": 0,
+                    "full_time": 0.0,
+                }
+
+            def task(fp: Path) -> tuple[Path, str | None, int, dict]:
+                local_stats = _init_stats()
+                codec, channels = probe_video_metadata(fp, ffprobe_args, local_stats)
+                return fp, codec, channels, local_stats
 
             # Run metadata probing with optional concurrency
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = [executor.submit(task, fp) for fp in video_files]
+                # Global stats aggregate
+                agg = _init_stats()
                 for fut in as_completed(futures):
-                    file_path, codec, channels = fut.result()
+                    file_path, codec, channels, local_stats = fut.result()
+                    # Aggregate stats
+                    for k in agg:
+                        agg[k] += local_stats.get(k, 0)
                     if codec and codec not in GOOD_CODECS:
                         abs_in = file_path.resolve()
                         ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
@@ -143,6 +160,47 @@ class VideoCodecChecker:
                 print(f"Script written to: {script_file}", file=sys.stderr)
 
         print(f"Results written to: {self.output_file}", file=sys.stderr)
+        # Print probe stats summary if fast-probe was enabled
+        if ffprobe_args is not None:
+            total_fast = agg["fast_attempted"]
+            print(
+                (
+                    "Probe stats: fast_attempted=%d, fast_ok=%d, "
+                    "fast_fallbacks=%d, full_probes=%d"
+                )
+                % (
+                    total_fast,
+                    agg["fast_succeeded"],
+                    agg["fast_fallbacks"],
+                    agg["full_probes"],
+                ),
+                file=sys.stderr,
+            )
+            # Timings
+
+            def _fmt(sec: float) -> str:
+                return f"{sec:.3f}s"
+
+            avg_fast = (
+                agg["fast_time"] / total_fast if total_fast > 0 else 0.0
+            )
+            avg_full = (
+                agg["full_time"] / agg["full_probes"]
+                if agg["full_probes"] > 0
+                else 0.0
+            )
+            print(
+                (
+                    "Timing: fast_total=%s, full_total=%s, avg_fast=%s, avg_full=%s"
+                )
+                % (
+                    _fmt(agg["fast_time"]),
+                    _fmt(agg["full_time"]),
+                    _fmt(avg_fast),
+                    _fmt(avg_full),
+                ),
+                file=sys.stderr,
+            )
         return processed_count
 
 
@@ -176,6 +234,37 @@ def main() -> None:
         "-s",
         "--script",
         help=("Write a shell script with the generated FFmpeg commands; not executed"),
+    )
+    # Fast-probe is enabled by default unless explicitly disabled via env/CLI
+    fast_probe_default = (
+        env_config.get("fast_probe")
+        if env_config.get("fast_probe") is not None
+        else True
+    )
+    parser.add_argument(
+        "--fast-probe",
+        action=argparse.BooleanOptionalAction,
+        default=fast_probe_default,
+        help=(
+            "Enable fast ffprobe (-probesize/-analyzeduration). "
+            "Use --no-fast-probe to disable."
+        ),
+    )
+    parser.add_argument(
+        "--probe-size",
+        default=env_config.get("ffprobe_probesize") or "5M",
+        help=(
+            "ffprobe -probesize value (used only with --fast-probe); "
+            "accepts size suffixes like 1M"
+        ),
+    )
+    parser.add_argument(
+        "--analyze-duration",
+        default=env_config.get("ffprobe_analyzeduration") or "10M",
+        help=(
+            "ffprobe -analyzeduration value (used only with --fast-probe); "
+            "accepts microseconds; supports suffixes like 10M"
+        ),
     )
     parser.add_argument(
         "-r",
@@ -214,12 +303,23 @@ def main() -> None:
 
     try:
         checker = VideoCodecChecker(args.output)
+        # Build ffprobe args for fast-probe if requested
+        fast_args: list[str] | None = None
+        if args.fast_probe:
+            fast_args = [
+                "-probesize",
+                str(args.probe_size),
+                "-analyzeduration",
+                str(args.analyze_duration),
+            ]
+
         processed_count = checker.process_files(
             args.directory,
             jobs=args.jobs,
             script_file=args.script,
             delete_original=args.delete_original,
             trash_original=args.trash_original,
+            ffprobe_args=fast_args,
         )
         print(f"Found {processed_count} files that need conversion.")
     except KeyboardInterrupt:

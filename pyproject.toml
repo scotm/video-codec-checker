@@ -50,6 +50,9 @@ exclude = [
     "build",
     "dist",
 ]
+[tool.ruff.lint.per-file-ignores]
+"video_codec_checker/main.py" = ["C901"]
+"video_codec_checker/video_processor.py" = ["C901"]
 
 [tool.mypy]
 python_version = "3.10"

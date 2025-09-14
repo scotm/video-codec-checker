@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+import time
 from pathlib import Path
 
 
@@ -79,13 +80,17 @@ def get_audio_channels(file_path: Path) -> int:
         return 0
 
 
-def probe_video_metadata(file_path: Path) -> tuple[str | None, int]:
+def probe_video_metadata(
+    file_path: Path,
+    ffprobe_args: list[str] | None = None,
+    stats: dict | None = None,
+) -> tuple[str | None, int]:
     """Probe both video codec and audio channels using a single ffprobe call.
 
     Returns a tuple of (video_codec or None, audio_channels as int).
     """
     try:
-        cmd = [
+        base = [
             "ffprobe",
             "-v",
             "quiet",
@@ -93,11 +98,66 @@ def probe_video_metadata(file_path: Path) -> tuple[str | None, int]:
             "stream=index,codec_type,codec_name,channels",
             "-of",
             "json",
-            str(file_path),
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        if result.returncode != 0 or not result.stdout:
-            return None, 0
+        # Fast probe if args provided
+        if ffprobe_args:
+            if stats is not None:
+                stats.setdefault("fast_attempted", 0)
+                stats.setdefault("fast_succeeded", 0)
+                stats.setdefault("fast_fallbacks", 0)
+                stats.setdefault("fast_time", 0.0)
+                stats.setdefault("full_probes", 0)
+                stats.setdefault("full_time", 0.0)
+            if stats is not None:
+                stats["fast_attempted"] += 1
+            t0 = time.perf_counter()
+            result = subprocess.run(
+                base + ffprobe_args + [str(file_path)],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            t1 = time.perf_counter()
+            if stats is not None:
+                stats["fast_time"] += (t1 - t0)
+            if result.returncode != 0 or not result.stdout:
+                # Fallback to full probe
+                if stats is not None:
+                    stats["fast_fallbacks"] += 1
+                    stats["full_probes"] += 1
+                t2 = time.perf_counter()
+                result = subprocess.run(
+                    base + [str(file_path)],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                t3 = time.perf_counter()
+                if stats is not None:
+                    stats["full_time"] += (t3 - t2)
+                if result.returncode != 0 or not result.stdout:
+                    return None, 0
+            else:
+                if stats is not None:
+                    stats["fast_succeeded"] += 1
+        else:
+            # Full probe directly
+            if stats is not None:
+                stats.setdefault("full_probes", 0)
+                stats.setdefault("full_time", 0.0)
+                stats["full_probes"] += 1
+            t0 = time.perf_counter()
+            result = subprocess.run(
+                base + [str(file_path)],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            t1 = time.perf_counter()
+            if stats is not None:
+                stats["full_time"] += (t1 - t0)
+            if result.returncode != 0 or not result.stdout:
+                return None, 0
 
         data = json.loads(result.stdout)
         streams = data.get("streams", [])
