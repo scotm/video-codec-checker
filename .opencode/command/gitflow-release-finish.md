@@ -12,14 +12,19 @@ git fetch --all --prune
 
 # PR: release -> main
 gh pr create -B main -H release/$ARGUMENTS -t "Release $ARGUMENTS" -b "Merge release/$ARGUMENTS into main"
-gh pr merge --merge --delete-branch   # or --squash
+gh pr merge --merge                   # or --squash
 
-# Tag and publish GitHub Release (creates tag if missing and pushes it)
-make release VERSION=$ARGUMENTS TITLE="v$ARGUMENTS: release"
+# Tag and publish GitHub Release (targets main)
+git checkout main && git pull --ff-only
+make release VERSION=$ARGUMENTS TITLE="v$ARGUMENTS: release" TARGET=main
 
 # PR: release -> develop (carry version/doc bumps)
 gh pr create -B develop -H release/$ARGUMENTS -t "Back-merge release $ARGUMENTS" -b "Merge release/$ARGUMENTS into develop"
-gh pr merge --merge --delete-branch || true
+gh pr merge --merge || true
+
+# Cleanup after both PRs are merged
+git push origin --delete "release/$ARGUMENTS" || true
+git branch -D "release/$ARGUMENTS" || true
 
 # Update locals
 git checkout main && git pull --ff-only

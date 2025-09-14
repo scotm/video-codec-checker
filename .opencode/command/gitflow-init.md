@@ -10,6 +10,6 @@ This should create and checkout the develop branch from main, then push it to re
 ```bash
 git fetch --all --prune
 [ -z "$(git status --porcelain)" ] || { echo "Working tree dirty" >&2; exit 1; }
-git checkout -B develop main
+git checkout -B develop origin/main
 git push -u origin develop
 ```

@@ -12,17 +12,21 @@ git fetch --all --prune
 
 # PR: hotfix -> main
 gh pr create -B main -H hotfix/$ARGUMENTS -t "Hotfix $ARGUMENTS" -b "Merge hotfix/$ARGUMENTS into main"
-gh pr merge --merge --delete-branch   # or --squash
+gh pr merge --merge                   # or --squash
 
-# Tag and publish GitHub Release (creates tag if missing and pushes it)
-make release VERSION=$ARGUMENTS TITLE="v$ARGUMENTS: hotfix"
+# Tag and publish GitHub Release (targets main)
+git checkout main && git pull --ff-only
+make release VERSION=$ARGUMENTS TITLE="v$ARGUMENTS: hotfix" TARGET=main
 
 # PR: hotfix -> develop (carry fixes forward)
 gh pr create -B develop -H hotfix/$ARGUMENTS -t "Back-merge hotfix $ARGUMENTS" -b "Merge hotfix/$ARGUMENTS into develop"
-gh pr merge --merge --delete-branch || true
+gh pr merge --merge || true
+
+# Cleanup after both PRs are merged
+git push origin --delete "hotfix/$ARGUMENTS" || true
+git branch -D "hotfix/$ARGUMENTS" || true
 
 # Update locals
-git checkout main && git pull --ff-only
 git checkout develop && git pull --ff-only
 ```
 

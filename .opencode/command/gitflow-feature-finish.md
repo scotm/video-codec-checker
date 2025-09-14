@@ -15,10 +15,11 @@ git push -u origin feature/$ARGUMENTS
 
 # Create PR into develop and merge after checks pass
 gh pr create -B develop -H feature/$ARGUMENTS -t "Merge feature/$ARGUMENTS" -b "Finishes feature $ARGUMENTS"
-gh pr merge --merge --delete-branch
+gh pr merge --merge --delete-branch --auto
 
-# Update local develop
+# Update local develop and clean up local branch
 git checkout develop && git pull --ff-only
+git branch -d feature/$ARGUMENTS || true
 ```
 
 Direct merge fallback (no PR):
