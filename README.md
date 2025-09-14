@@ -2,7 +2,7 @@
 
 This script recursively searches the current directory for video files using codecs that are considered less than state-of-the-art (anything other than AV1, HEVC/H.265, or H.264/AVC). It outputs a CSV-formatted list of such files, including the detected codec and a ready-to-run FFmpeg command to re-encode them to AV1 with Opus audio in an MKV container.
 
-Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
+Available in a Python (`check_video_codecs.py`) implementation.
 
 ## What's New in 0.7.4
 - CSV: `FFmpeg_Command` now populated for all reported files, including `h264`, to simplify quick evaluation.
