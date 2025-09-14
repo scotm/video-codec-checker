@@ -4,12 +4,12 @@
 - GitHub CLI (`gh`) is installed and authenticated. You may directly use `gh` to create or edit GitHub Releases without additional setup in future sessions.
 
 ## Commands
-- **Run Bash script**: `./check_video_codecs.sh`
-- **Run Python script**: `python check_video_codecs.py`
-- **Run Python script with uv** (recommended): `uv run check-video-codecs`
-- **Make executable**: `chmod +x check_video_codecs.sh`
-- **Output to file**: `./check_video_codecs.sh -o results.csv` or `python check_video_codecs.py -o results.csv` or `uv run check-video-codecs -o results.csv`
-- **Auto-generated output**: `./check_video_codecs.sh` or `python check_video_codecs.py` or `uv run check-video-codecs` (creates timestamped filename)
+- Run (recommended): `uv run check-video-codecs`
+- Output to file: `uv run check-video-codecs -o results.csv`
+- Generate script: `uv run check-video-codecs -s convert.sh` (not executed automatically)
+- Concurrency: `uv run check-video-codecs -j 8`
+- Cleanup flags: `-r/--delete-original`, `-t/--trash-original`
+- Directory arg: `uv run check-video-codecs /path/to/videos`
 
 ## Development Commands
 - **Linting**: `uv run ruff check .`
@@ -28,7 +28,7 @@
 
 Notes:
 - `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
-- The `release` target assumes the tag `v$(VERSION)` exists or will be created and pushed.
+- The `release` target ensures tag `v$(VERSION)` exists (creates and pushes if missing) and combines curated + auto notes.
 
 ## Documentation Conventions
 - README should list "What's New" only for the last two releases. Older release notes belong in `CHANGELOG.md`.
@@ -156,12 +156,12 @@ When making changes to the codebase, follow these guidelines to ensure safety:
   - Avoid renaming/removing columns without a migration note.
 - Lazy/conditional outputs:
   - Defer side effects until needed (e.g., only create the script when a conversion-worthy file is found).
-  - When zero conversions are found, do not create a script; print a concise note to `stderr`.
+  - When zero conversions are needed, do not create a script; print a concise note to `stderr`.
 - Probe consolidation:
   - When adding new metrics (e.g., bits-per-pixel), prefer extending the primary ffprobe path to avoid extra subprocess calls.
   - If a temporary extra probe is added, leave a TODO to fold it into the primary probe.
 - Feature flags & UX:
-  - Distinguish “reporting-only” features (e.g., include `h264` analysis in CSV) from “conversion” features (script generation).
+  - Distinguish “reporting-only” features (e.g., include all video analysis in CSV with FFmpeg commands) from “conversion” features (script generation for legacy codecs only).
   - Consider explicit CLI toggles to include/exclude analysis features and thresholds.
 - Release hygiene:
   - Bump `pyproject.toml` version and update CHANGELOG/README (last two releases only) on each release.
@@ -208,8 +208,6 @@ This project uses uv for Python dependency management. uv is a fast Python packa
 - **List installed packages**: `uv pip list`
 
 Using uv ensures dependencies are properly contained and managed without affecting the system Python installation.
-
-## Commit Guidelines
 
 ## Commit Guidelines
 

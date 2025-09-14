@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Script to find video files using codecs less than state-of-the-art (AV1, HEVC, H.264)
-Outputs CSV: File,Codec,FFmpeg_Command
-State-of-the-art: av1, hevc, h264
+Outputs CSV: File, Codec, Audio_Channels, Bits_Per_Pixel, FFmpeg_Command
+State-of-the-art: av1, hevc, h264 (h264 is included in CSV for analysis only)
 """
 
 import sys
@@ -76,28 +76,30 @@ class VideoCodecChecker:
                 # Compute bits-per-pixel for reporting
                 bpp = compute_bpp(abs_in, ffprobe_args) or 0.0
 
-                # Generate conversion command only for legacy codecs (not h264)
+                # Generate conversion command for all reported files
                 ffmpeg_cmd = ""
-                if codec and codec not in GOOD_CODECS:
+                if codec:
                     ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
-                    if want_script and script is None:
-                        trash_cfg = resolve_trash_config(trash_original)
-                        script = ScriptWriter(
-                            path=script_file,  # type: ignore[arg-type]
-                            delete_original=delete_original,
-                            trash_config=trash_cfg,
-                        )
-                        script.open()
-                    if script is not None:
-                        if delete_original or trash_original:
-                            dst = get_output_path(abs_in)
-                            script.write_command(ffmpeg_cmd, abs_in, dst)
-                        else:
-                            script.write_command_no_cleanup(ffmpeg_cmd)
-                    processed_count += 1
-                    print(f"Processed: {file_path}", file=sys.stderr)
-                else:
-                    print(f"Analyzed (h264): {file_path}", file=sys.stderr)
+                    # Only write to script file for legacy codecs (not h264)
+                    if codec not in GOOD_CODECS:
+                        if want_script and script is None:
+                            trash_cfg = resolve_trash_config(trash_original)
+                            script = ScriptWriter(
+                                path=script_file,  # type: ignore[arg-type]
+                                delete_original=delete_original,
+                                trash_config=trash_cfg,
+                            )
+                            script.open()
+                        if script is not None:
+                            if delete_original or trash_original:
+                                dst = get_output_path(abs_in)
+                                script.write_command(ffmpeg_cmd, abs_in, dst)
+                            else:
+                                script.write_command_no_cleanup(ffmpeg_cmd)
+                        processed_count += 1
+                        print(f"Processed: {file_path}", file=sys.stderr)
+                    else:
+                        print(f"Analyzed (h264): {file_path}", file=sys.stderr)
 
                 csv_writer.write_row_dc(
                     CsvRow(
