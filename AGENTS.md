@@ -17,6 +17,18 @@
 - **Type checking**: `uv run mypy video_codec_checker/`
 - **Run tests**: `uv run python -m pytest tests/`
 
+## Makefile Targets
+- `make check` — run lint (ruff), type-check (mypy), and tests (pytest)
+- `make lint` — run `ruff check . --fix`
+- `make format` — run `ruff format .`
+- `make type` — run `mypy video_codec_checker/`
+- `make test` — run `pytest`
+- `make release VERSION=x.y.z TITLE="..." NOTES="..."` — create a GitHub Release for an existing tag (requires clean working tree and authenticated `gh`).
+
+Notes:
+- `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
+- The `release` target assumes the tag `v$(VERSION)` exists or will be created and pushed.
+
 ## Code Quality Checks
 
 Before committing changes, always run the following checks to ensure code quality:
@@ -117,3 +129,7 @@ Using uv ensures dependencies are properly contained and managed without affecti
 - Create a release from an existing tag: `gh release create vX.Y.Z --title "<title>" --notes "<summary>"`
 - Optionally generate notes: `gh release create vX.Y.Z --generate-notes`
 - Edit an existing release: `gh release edit vX.Y.Z --title "<title>" --notes-file CHANGELOG.md`
+
+## Pre-commit Hooks
+- This repo includes a `.pre-commit-config.yaml` that blocks committing generated CSV outputs: `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv`.
+- Install: `uv pip install -e .[dev] && uv run pre-commit install`
