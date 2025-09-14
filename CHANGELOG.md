@@ -46,3 +46,9 @@ v0.6.0 - 2025-09-14
 - Add `-r/--delete-original` flag and `DELETE_ORIGINAL` environment variable to enable source file cleanup in generated scripts
 - Generated scripts include a `run_and_cleanup` wrapper; removes the source only when conversion succeeds and the destination file exists
 - Documentation updated to reflect new behavior
+
+v0.6.1 - 2025-09-14
+-------------------
+- Add `-t/--trash-original` flag and `TRASH_ORIGINAL` environment variable to move source files to the system Trash on success
+- On macOS, uses Finder via `osascript`; otherwise attempts `gio trash` or `trash(-put)` if present, falling back to deletion
+- Tests and documentation updated

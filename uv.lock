@@ -348,7 +348,7 @@ wheels = [
 
 [[package]]
 name = "video-codec-checker"
-version = "0.5.1"
+version = "0.6.1"
 source = { editable = "." }
 dependencies = [
     { name = "python-dotenv" },

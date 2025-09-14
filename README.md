@@ -4,14 +4,13 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.6.1
+- Add `-t/--trash-original` flag and `TRASH_ORIGINAL` env to move source files to the system Trash after successful conversion (script generation only)
+- On macOS uses Finder via `osascript`; otherwise tries `gio trash`/`trash(-put)` when available, falling back to deletion
+
 ## What's New in 0.6.0
 - Add `-r/--delete-original` flag and `DELETE_ORIGINAL` env to remove source file after successful conversion (script generation only)
 - Generated scripts include a `run_and_cleanup` wrapper when enabled; cleanup occurs only if the destination file exists
-
-## What's New in 0.5.1
-- Add Makefile convenience targets for linting, formatting, type-checking, testing, and release publishing
-- Add pre-commit hook to block committing generated CSV outputs (install via `uv run pre-commit install`)
-- Document Makefile and pre-commit usage in README and AGENTS
 
 <!-- Older release notes are available in CHANGELOG.md. Keep only the last two here. -->
 
@@ -41,6 +40,7 @@ For Python version:
 3. Parallelize metadata probing: `python check_video_codecs.py -j 8`
 4. Include cleanup in generated script (delete source on success):
    - `python check_video_codecs.py -s convert.sh -r`
+   - Move to Trash instead (macOS Finder/gio/trash if available): `python check_video_codecs.py -s convert.sh -t`
 
 For Python version with uv (recommended):
 1. Run with uv: `uv run check-video-codecs`
@@ -51,6 +51,7 @@ For Python version with uv (recommended):
 3. Parallelize metadata probing: `uv run check-video-codecs -j 8`
 4. Include cleanup in generated script (delete source on success):
    - `uv run check-video-codecs -s convert.sh -r`
+   - Move to Trash instead (macOS Finder/gio/trash if available): `uv run check-video-codecs -s convert.sh -t`
 
 ### Conversion Script Template
 
@@ -78,6 +79,7 @@ The Python version also supports environment variables for configuration:
 - `OUTPUT_FILE`: Default output CSV filename (equivalent to -o/--output argument)
 - `SCAN_DIRECTORY`: Directory to scan for video files (equivalent to directory argument)
 - `DELETE_ORIGINAL`: When set to a truthy value (`1`, `true`, `yes`, `on`), generated scripts will delete the source file after successful conversion (equivalent to `-r/--delete-original`).
+- `TRASH_ORIGINAL`: When set to a truthy value, generated scripts will move the source file to the system Trash on success (macOS via Finder; otherwise via `gio trash`/`trash(-put)` if available). Falls back to deletion if no trash mechanism is present.
 
 You can also use a `.env` file in the current directory to set these variables. See `.env.example` for reference.
 
