@@ -3,8 +3,9 @@
 import os
 import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from video_codec_checker.config import load_yaml_config, load_env_config
+from unittest.mock import patch
+
+from video_codec_checker.config import load_env_config, load_yaml_config
 
 
 class TestConfig(unittest.TestCase):

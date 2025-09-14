@@ -3,16 +3,29 @@
 from pathlib import Path
 
 
+def _single_quote(path: str) -> str:
+    """Return path wrapped in single quotes with internal quotes escaped.
+
+    Uses the POSIX-safe pattern: ' -> '\'' inside single-quoted strings.
+    Always returns a single-quoted string to keep output consistent.
+    """
+    return "'" + path.replace("'", "'\"'\"'") + "'"
+
+
 def get_audio_bitrate(channels: int) -> str:
-    """Determine optimal Opus bitrate based on audio channels."""
+    """Determine optimal Opus bitrate based on audio channels.
+
+    Uses a safe default of 128k when channels are unknown or <= 0.
+    """
+    if channels <= 0:
+        return "128k"  # Unknown; default to stereo bitrate
     if channels == 1:
         return "48k"  # Mono
-    elif channels == 2:
+    if channels == 2:
         return "128k"  # Stereo
-    elif 3 <= channels <= 6:
+    if 3 <= channels <= 6:
         return "256k"  # 5.1 surround
-    else:
-        return "320k"  # 7.1 or higher
+    return "320k"  # 7.1 or higher
 
 
 def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
@@ -20,10 +33,13 @@ def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
     output_file = input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
     audio_bitrate = get_audio_bitrate(channels)
 
+    q_input = _single_quote(str(input_file))
+    q_output = _single_quote(str(output_file))
+
     cmd_parts = [
         "ffmpeg",
         "-i",
-        f"'{input_file}'",
+        q_input,
         "-map_metadata",
         "-1",
         "-c:v",
@@ -36,7 +52,7 @@ def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
         "libopus",
         "-b:a",
         audio_bitrate,
-        f"'{output_file}'",
+        q_output,
     ]
 
     return " ".join(cmd_parts)

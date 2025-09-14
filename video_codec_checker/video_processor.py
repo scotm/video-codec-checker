@@ -7,7 +7,10 @@ from pathlib import Path
 def get_video_files(
     directory: str = ".", video_extensions: set[str] | None = None
 ) -> list[Path]:
-    """Find all video files recursively in the given directory."""
+    """Find all video files recursively in the given directory.
+
+    Uses a single directory walk and filters by suffix for performance.
+    """
     if video_extensions is None:
         video_extensions = {
             ".mp4",
@@ -24,14 +27,16 @@ def get_video_files(
             ".ogv",
         }
 
+    allowed = {ext.lower() for ext in video_extensions}
     path = Path(directory)
-    video_files: list[Path] = []
 
-    for ext in video_extensions:
-        video_files.extend(path.rglob(f"*{ext}"))
-        video_files.extend(path.rglob(f"*{ext.upper()}"))
+    files = [
+        p
+        for p in path.rglob("*")
+        if p.is_file() and p.suffix.lower() in allowed
+    ]
 
-    return sorted(set(video_files))  # Remove duplicates and sort
+    return sorted(set(files))  # Remove duplicates and sort
 
 
 def get_video_codec(file_path: Path) -> str | None:

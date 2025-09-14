@@ -1,13 +1,14 @@
 """Tests for video processing functionality."""
 
-import unittest
 import subprocess
+import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from video_codec_checker.video_processor import (
-    get_video_files,
-    get_video_codec,
     get_audio_channels,
+    get_video_codec,
+    get_video_files,
 )
 
 
@@ -32,10 +33,9 @@ class TestVideoProcessor(unittest.TestCase):
             result = get_video_files(".")
             # Should return a list of Path objects
             self.assertIsInstance(result, list)
-            # Check that we're calling rglob for each extension
-            self.assertEqual(
-                mock_path_instance.rglob.call_count, 24
-            )  # 12 extensions * 2 (lowercase + uppercase)
+            # Single directory walk expected
+            mock_path_instance.rglob.assert_called_with("*")
+            self.assertEqual(mock_path_instance.rglob.call_count, 1)
 
     def test_get_video_files_custom_extensions(self):
         """Test get_video_files with custom extensions."""

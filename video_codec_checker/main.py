@@ -31,45 +31,35 @@ class VideoCodecChecker:
     def process_files(self, directory: str = ".") -> int:
         """Process all video files and generate CSV output."""
         video_files = get_video_files(directory)
-        results = []
-
         print(f"Processing {len(video_files)} video files...", file=sys.stderr)
 
-        for file_path in video_files:
-            abs_file = file_path.resolve()
-            codec = get_video_codec(file_path)
-            channels = get_audio_channels(file_path)
-
-            if codec and codec not in GOOD_CODECS:
-                ffmpeg_cmd = generate_ffmpeg_command(abs_file, channels)
-                results.append(
-                    {
-                        "file": str(file_path),
-                        "codec": codec,
-                        "ffmpeg_command": ffmpeg_cmd,
-                    }
-                )
-                print(f"Processed: {file_path}", file=sys.stderr)
-            else:
-                print(f"Skipped: {file_path}", file=sys.stderr)
-
-        # Write CSV output
+        processed_count = 0
         with open(self.output_file, "w", newline="", encoding="utf-8") as csvfile:
             fieldnames = ["File", "Codec", "FFmpeg_Command"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
-            for result in results:
-                writer.writerow(
-                    {
-                        "File": result["file"],
-                        "Codec": result["codec"],
-                        "FFmpeg_Command": result["ffmpeg_command"],
-                    }
-                )
+            for file_path in video_files:
+                codec = get_video_codec(file_path)
+
+                if codec and codec not in GOOD_CODECS:
+                    # Only compute audio channels when we need to transcode
+                    channels = get_audio_channels(file_path)
+                    ffmpeg_cmd = generate_ffmpeg_command(file_path.resolve(), channels)
+                    writer.writerow(
+                        {
+                            "File": str(file_path),
+                            "Codec": codec,
+                            "FFmpeg_Command": ffmpeg_cmd,
+                        }
+                    )
+                    processed_count += 1
+                    print(f"Processed: {file_path}", file=sys.stderr)
+                else:
+                    print(f"Skipped: {file_path}", file=sys.stderr)
 
         print(f"Results written to: {self.output_file}", file=sys.stderr)
-        return len(results)
+        return processed_count
 
 
 def main() -> None:
