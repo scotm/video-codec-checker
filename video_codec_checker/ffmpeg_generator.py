@@ -48,6 +48,7 @@ def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
 
     cmd_parts = [
         "ffmpeg",
+        "-y",
         "-i",
         q_input,
         "-map_metadata",

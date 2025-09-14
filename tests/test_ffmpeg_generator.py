@@ -34,7 +34,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         input_file = Path("/path/to/video.mp4")
         channels = 1
         expected = (
-            "ffmpeg -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
+            "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
             "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 48k "
             "'/path/to/video_av1.mkv'"
         )
@@ -43,7 +43,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         # Test with stereo audio
         channels = 2
         expected = (
-            "ffmpeg -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
+            "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
             "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 128k "
             "'/path/to/video_av1.mkv'"
         )
@@ -52,7 +52,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         # Test with 5.1 surround sound
         channels = 6
         expected = (
-            "ffmpeg -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
+            "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
             "-preset 4 -crf 32 -map 0:a:0? -c:a libopus -b:a 256k "
             "'/path/to/video_av1.mkv'"
         )
@@ -61,7 +61,7 @@ class TestFFmpegGenerator(unittest.TestCase):
         # Test with no audio (channels == 0) -> -an
         channels = 0
         expected = (
-            "ffmpeg -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
+            "ffmpeg -y -i '/path/to/video.mp4' -map_metadata -1 -map 0:v:0 -c:v libsvtav1 "
             "-preset 4 -crf 32 -an '/path/to/video_av1.mkv'"
         )
         self.assertEqual(generate_ffmpeg_command(input_file, channels), expected)

@@ -97,7 +97,7 @@ The script outputs to a CSV file with a header row. Each row for legacy files in
 Example output:
 ```
 File,Codec,FFmpeg_Command
-"./old_video.avi","mpeg4","ffmpeg -i '/absolute/path/old_video.avi' -map_metadata -1 -c:v libsvtav1 -preset 4 -crf 32 -c:a libopus -b:a 128k '/absolute/path/old_video_av1.mkv'"
+"./old_video.avi","mpeg4","ffmpeg -y -i '/absolute/path/old_video.avi' -map_metadata -1 -c:v libsvtav1 -preset 4 -crf 32 -c:a libopus -b:a 128k '/absolute/path/old_video_av1.mkv'"
 ```
 
 ## What It Does
