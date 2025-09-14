@@ -24,6 +24,7 @@
 - `make type` — run `mypy video_codec_checker/`
 - `make test` — run `pytest`
 - `make release VERSION=x.y.z TITLE="..." NOTES="..."` — create a GitHub Release for an existing tag (requires clean working tree and authenticated `gh`).
+- `make release_auto VERSION=x.y.z TITLE=\"...\" NOTES_FILE=release-notes-vx.y.z.md` — create a GitHub Release and append auto-generated notes to curated notes.
 
 Notes:
 - `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
