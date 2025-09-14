@@ -150,10 +150,26 @@ When making changes to the codebase, follow these guidelines to ensure safety:
   - Generate scripts safely: robust single-quote escaping, cleanup only after a successful conversion and destination exists, and support trash/delete via detected utilities.
 - Logging:
   - Print progress and summaries to `stderr`; keep output concise to avoid overwhelming terminals/CI logs.
+- CSV schema stability:
+  - Keep column order stable; append new columns at the end.
+  - Document each column briefly and update tests when schema changes.
+  - Avoid renaming/removing columns without a migration note.
+- Lazy/conditional outputs:
+  - Defer side effects until needed (e.g., only create the script when a conversion-worthy file is found).
+  - When zero conversions are found, do not create a script; print a concise note to `stderr`.
+- Probe consolidation:
+  - When adding new metrics (e.g., bits-per-pixel), prefer extending the primary ffprobe path to avoid extra subprocess calls.
+  - If a temporary extra probe is added, leave a TODO to fold it into the primary probe.
+- Feature flags & UX:
+  - Distinguish “reporting-only” features (e.g., include `h264` analysis in CSV) from “conversion” features (script generation).
+  - Consider explicit CLI toggles to include/exclude analysis features and thresholds.
 - Release hygiene:
   - Bump `pyproject.toml` version and update CHANGELOG/README (last two releases only) on each release.
   - Use `make release_auto` to create releases with curated notes and append GitHub auto-generated notes; avoid committing temporary note files.
   - Push annotated tags before creating the GitHub Release; keep working tree clean.
+- Performance guardrails:
+  - Cap thread count; stream outputs; enforce timeouts.
+  - Avoid multi-pass directory walks or redundant `ffprobe` invocations; favor single-pass, batched, and cached approaches.
 
 ## Testing Guidance
 
