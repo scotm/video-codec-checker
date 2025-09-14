@@ -3,6 +3,12 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.7.1 - 2025-09-14
+-------------------
+- Build/Docs: Add `make release_auto` to publish releases with curated notes and appended GitHub auto-generated notes.
+- Docs: Update AGENTS.md to recommend combining auto-generated release notes with curated notes; document commands.
+- Maintenance: Merge modularization + typed dataclasses work into `main` (v0.7.0) and cut point release.
+
 v0.7.0 - 2025-09-14
 -------------------
 - Refactor: modularize responsibilities out of `main.py` into dedicated modules:

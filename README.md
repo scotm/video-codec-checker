@@ -4,6 +4,10 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.7.1
+- Build/Docs: New `make release_auto` target appends GitHub auto-generated notes to curated release notes
+- Docs: AGENTS updated to document release practices and discourage `typing.Any`
+
 ## What's New in 0.7.0
 - Refactor: modularize main responsibilities into dedicated modules (`cli.py`, `concurrency.py`, `stats.py`, `csv_writer.py`)
 - Strong typing via dataclasses and protocols (`models.py`): `AppConfig`, `ProbeSettings`, `CleanupPolicy`, `FileProbeResult`, `CsvRow`
