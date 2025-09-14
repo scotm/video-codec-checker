@@ -93,8 +93,6 @@ def probe_video_metadata(file_path: Path) -> tuple[str | None, int]:
             "ffprobe",
             "-v",
             "quiet",
-            "-select_streams",
-            "v:0,a:0",
             "-show_entries",
             "stream=index,codec_type,codec_name,channels",
             "-of",
