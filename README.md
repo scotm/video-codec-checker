@@ -4,14 +4,15 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.7.0
+- Refactor: modularize main responsibilities into dedicated modules (`cli.py`, `concurrency.py`, `stats.py`, `csv_writer.py`)
+- Strong typing via dataclasses and protocols (`models.py`): `AppConfig`, `ProbeSettings`, `CleanupPolicy`, `FileProbeResult`, `CsvRow`
+- CLI now builds a normalized `AppConfig`; main delegates via `process_config`
+- Maintain behavior: all tests pass; CSV and script generation unchanged for users
+
 ## What's New in 0.6.0
 - Add `-r/--delete-original` flag and `DELETE_ORIGINAL` env to remove source file after successful conversion (script generation only)
 - Generated scripts include a `run_and_cleanup` wrapper when enabled; cleanup occurs only if the destination file exists
-
-## What's New in 0.5.1
-- Add Makefile convenience targets for linting, formatting, type-checking, testing, and release publishing
-- Add pre-commit hook to block committing generated CSV outputs (install via `uv run pre-commit install`)
-- Document Makefile and pre-commit usage in README and AGENTS
 
 <!-- Older release notes are available in CHANGELOG.md. Keep only the last two here. -->
 

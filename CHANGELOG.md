@@ -3,6 +3,19 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.7.0 - 2025-09-14
+-------------------
+- Refactor: modularize responsibilities out of `main.py` into dedicated modules:
+  - `cli.py` for argument parsing and config normalization (env + YAML) returning a typed `AppConfig`.
+  - `concurrency.py` with `ProbeExecutor` to parallelize probing and aggregate stats.
+  - `stats.py` with `ProbeStats` for counters and timing summary.
+  - `csv_writer.py` to stream CSV output with a fixed header.
+- Strong typing: introduce dataclasses and protocols in `models.py` to clarify state and results:
+  - `AppConfig`, `ProbeSettings`, `CleanupPolicy`/`CleanupMode`, `FileProbeResult`, `CsvRow`, and `Prober` protocol.
+  - Add `process_config(AppConfig)` to `VideoCodecChecker` while keeping `process_files(...)` for compatibility.
+- Code quality: add precise type hints to script generation helpers; remove or avoid `typing.Any` usage.
+- Docs: Update AGENTS.md to instruct future changes to avoid `typing.Any` where possible and prefer precise types.
+
 v0.6.0 - 2025-09-14
 -------------------
 - Add `-r/--delete-original` flag and `DELETE_ORIGINAL` environment variable to enable source file cleanup in generated scripts
