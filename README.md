@@ -142,6 +142,14 @@ To run these tools:
 
 These tools help maintain code quality and catch potential issues early in the development process.
 
+### CI Checklist (before pushing)
+
+- Format: `uv run ruff format .`
+- Lint: `uv run ruff check .`
+- Types: `uv run mypy video_codec_checker/`
+- Tests: `uv run python -m pytest -q`
+- If mypy reports missing stubs (e.g., PyYAML), add the appropriate `types-` package to dev deps in `pyproject.toml` (e.g., `types-PyYAML`) and reinstall.
+
 ### Makefile Shortcuts
 
 Common tasks are available via `make`:
