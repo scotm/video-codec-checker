@@ -3,6 +3,12 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.7.2 - 2025-09-14
+-------------------
+- Docs: Expand AGENTS.md with a comprehensive Testing Guidance section:
+  - Mock subprocess and trash detection, control file discovery, ensure concurrency determinism, patch seams in `main`, assert script behaviors, and maintain type safety.
+  - No functional code changes in this release.
+
 v0.7.1 - 2025-09-14
 -------------------
 - Build/Docs: Add `make release_auto` to publish releases with curated notes and appended GitHub auto-generated notes.
