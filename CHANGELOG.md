@@ -3,6 +3,19 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+v0.7.4 - 2025-09-14
+-------------------
+- CSV: Always include an `FFmpeg_Command` for reported files, including `h264`, to enable quick experiments.
+- Scripts: Still only generated for non-good codecs (legacy formats). Script creation remains lazy and is skipped when zero conversions are needed.
+- Tests updated accordingly; ruff/mypy/pytest passing.
+
+v0.7.3 - 2025-09-14
+-------------------
+- Report: Add `Bits_Per_Pixel` column to CSV; compute via ffprobe using stream width/height/fps/bit_rate with fallback to format bit_rate.
+- Report: Include `h264` videos in the CSV to assess codec efficiency; `FFmpeg_Command` remains empty for h264.
+- Script generation: Only created for non-good codecs (legacy formats) and opened lazily; no script file is created when zero conversions are needed.
+- No CLI changes; tests updated; ruff/mypy/pytest all passing.
+
 v0.7.2 - 2025-09-14
 -------------------
 - Docs: Expand AGENTS.md with a comprehensive Testing Guidance section:

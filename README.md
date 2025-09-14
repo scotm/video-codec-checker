@@ -4,12 +4,16 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.7.4
+- CSV: `FFmpeg_Command` now populated for all reported files, including `h264`, to simplify quick evaluation.
+- Script generation remains limited to non-good codecs and is created lazily only if conversions are needed.
+
+## What's New in 0.7.3
+- Report: Added `Bits_Per_Pixel` column to CSV; includes `h264` files to assess efficiency
+- Script generation unchanged for `h264` (no commands generated); script file is created lazily only if conversions are needed
+
 ## What's New in 0.7.2
 - Docs: Expanded AGENTS with Testing Guidance (mock subprocess/which, control discovery, determinism with `jobs=1`, patch seams in main, script assertions, typed fixtures)
-
-## What's New in 0.7.1
-- Build/Docs: New `make release_auto` target appends GitHub auto-generated notes to curated release notes
-- Docs: AGENTS updated to document release practices and discourage `typing.Any`
 
 ## What's New in 0.6.0
 - Add `-r/--delete-original` flag and `DELETE_ORIGINAL` env to remove source file after successful conversion (script generation only)
