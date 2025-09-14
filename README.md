@@ -4,6 +4,10 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.5.0
+- Add `scripts/convert_template.sh` runner to execute command files with logging and optional dry-run
+- Ignore generated conversion CSV outputs via `.gitignore`
+
 ## What's New in 0.4.0
 - Add `--script/-s` to write a runnable shell script containing all generated FFmpeg commands (not executed automatically)
 - Script includes shebang and `set -euo pipefail` for safety and reliability
