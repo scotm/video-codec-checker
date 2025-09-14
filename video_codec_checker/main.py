@@ -20,7 +20,11 @@ from video_codec_checker.script_writer import (
     ScriptWriter,
     resolve_trash_config,
 )
-from video_codec_checker.video_processor import get_video_files, probe_video_metadata
+from video_codec_checker.video_processor import (
+    compute_bpp,
+    get_video_files,
+    probe_video_metadata,
+)
 
 GOOD_CODECS = {"av1", "hevc", "h264"}
 
@@ -69,25 +73,40 @@ class VideoCodecChecker:
             file_path = result.path
             codec = result.codec
             channels = result.channels
-            if codec and codec not in GOOD_CODECS:
+            # Determine if the file should be included in the report
+            include_in_report = bool(codec) and (
+                codec not in GOOD_CODECS or codec == "h264"
+            )
+
+            if include_in_report:
                 abs_in = file_path.resolve()
-                ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
+                # Compute bits-per-pixel for reporting
+                bpp = compute_bpp(abs_in, ffprobe_args) or 0.0
+
+                # Generate conversion command only for legacy codecs (not h264)
+                ffmpeg_cmd = ""
+                if codec and codec not in GOOD_CODECS:
+                    ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
+                    if script is not None:
+                        if delete_original or trash_original:
+                            dst = get_output_path(abs_in)
+                            script.write_command(ffmpeg_cmd, abs_in, dst)
+                        else:
+                            script.write_command_no_cleanup(ffmpeg_cmd)
+                    processed_count += 1
+                    print(f"Processed: {file_path}", file=sys.stderr)
+                else:
+                    print(f"Analyzed (h264): {file_path}", file=sys.stderr)
+
                 csv_writer.write_row_dc(
                     CsvRow(
                         file=str(file_path),
-                        codec=codec,
+                        codec=codec or "",
                         channels=channels,
+                        bpp=bpp,
                         command=ffmpeg_cmd,
                     )
                 )
-                if script is not None:
-                    if delete_original or trash_original:
-                        dst = get_output_path(abs_in)
-                        script.write_command(ffmpeg_cmd, abs_in, dst)
-                    else:
-                        script.write_command_no_cleanup(ffmpeg_cmd)
-                processed_count += 1
-                print(f"Processed: {file_path}", file=sys.stderr)
             else:
                 print(f"Skipped: {file_path}", file=sys.stderr)
 

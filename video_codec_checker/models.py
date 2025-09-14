@@ -83,13 +83,15 @@ class CsvRow:
     file: str
     codec: str
     channels: int
+    bpp: float
     command: str
 
-    def as_dict(self) -> dict[str, str | int]:
+    def as_dict(self) -> dict[str, str | int | float]:
         return {
             "File": self.file,
             "Codec": self.codec,
             "Audio_Channels": self.channels,
+            "Bits_Per_Pixel": self.bpp,
             "FFmpeg_Command": self.command,
         }
 

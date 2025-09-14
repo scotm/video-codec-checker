@@ -11,7 +11,13 @@ from typing import IO
 
 from video_codec_checker.models import CsvRow
 
-CSV_FIELDS = ["File", "Codec", "Audio_Channels", "FFmpeg_Command"]
+CSV_FIELDS = [
+    "File",
+    "Codec",
+    "Audio_Channels",
+    "Bits_Per_Pixel",
+    "FFmpeg_Command",
+]
 
 
 class CsvResultsWriter:
@@ -29,7 +35,9 @@ class CsvResultsWriter:
         writer.writeheader()
         self._writer = writer
 
-    def write_row(self, file: str, codec: str, channels: int, command: str) -> None:
+    def write_row(
+        self, file: str, codec: str, channels: int, bpp: float, command: str
+    ) -> None:
         if self._writer is None:
             raise RuntimeError("CSV writer is not open")
         self._writer.writerow(
@@ -37,6 +45,7 @@ class CsvResultsWriter:
                 "File": file,
                 "Codec": codec,
                 "Audio_Channels": channels,
+                "Bits_Per_Pixel": bpp,
                 "FFmpeg_Command": command,
             }
         )

@@ -4,6 +4,7 @@ import json
 import subprocess
 import time
 from pathlib import Path
+from typing import Any
 
 
 def get_video_files(
@@ -95,49 +96,6 @@ def _probe_fast(
     return result
 
 
-def get_video_codec(file_path: Path) -> str | None:
-    """Extract video codec from file using ffprobe."""
-    try:
-        cmd = [
-            "ffprobe",
-            "-v",
-            "quiet",
-            "-select_streams",
-            "v:0",
-            "-show_entries",
-            "stream=codec_name",
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
-            str(file_path),
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        return result.stdout.strip() if result.returncode == 0 else None
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return None
-
-
-def get_audio_channels(file_path: Path) -> int:
-    """Extract audio channels from file using ffprobe."""
-    try:
-        cmd = [
-            "ffprobe",
-            "-v",
-            "quiet",
-            "-select_streams",
-            "a:0",
-            "-show_entries",
-            "stream=channels",
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
-            str(file_path),
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        channels = result.stdout.strip()
-        return int(channels) if channels.isdigit() else 0
-    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
-        return 0
-
-
 def probe_video_metadata(
     file_path: Path,
     ffprobe_args: list[str] | None = None,
@@ -186,3 +144,75 @@ def probe_video_metadata(
         return v_codec, a_channels
     except (json.JSONDecodeError, subprocess.TimeoutExpired, FileNotFoundError):
         return None, 0
+
+
+def _parse_rate(rate: str | None) -> float:
+    """Parse an ffprobe rate string like '30000/1001' or '25/1' to float fps."""
+    if not rate:
+        return 0.0
+    try:
+        if "/" in rate:
+            num, den = rate.split("/", 1)
+            n = float(num)
+            d = float(den)
+            return 0.0 if d == 0.0 else n / d
+        return float(rate)
+    except (ValueError, ZeroDivisionError):
+        return 0.0
+
+
+def compute_bpp(file_path: Path, ffprobe_args: list[str] | None = None) -> float:
+    """Compute bits-per-pixel (bpp) for the primary video stream.
+
+    bpp = bitrate_bits_per_sec / (fps * width * height)
+
+    Falls back to `format.bit_rate` if stream bit_rate is unavailable.
+    Returns 0.0 if any required component is missing or invalid.
+    """
+    try:
+        base = [
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height,avg_frame_rate,r_frame_rate,bit_rate",
+            "-show_entries",
+            "format=bit_rate",
+            "-of",
+            "json",
+        ]
+        cmd = base + (ffprobe_args or []) + [str(file_path)]
+        result = _run(cmd)
+        if result.returncode != 0 or not result.stdout:
+            return 0.0
+        data: dict[str, Any] = json.loads(result.stdout)
+        streams = data.get("streams", []) or []
+        fmt = data.get("format", {}) or {}
+        width = 0
+        height = 0
+        fps = 0.0
+        v_bitrate = 0
+        if streams:
+            s0 = streams[0]
+            width = int(s0.get("width") or 0)
+            height = int(s0.get("height") or 0)
+            fps = _parse_rate(s0.get("avg_frame_rate")) or _parse_rate(
+                s0.get("r_frame_rate")
+            )
+            try:
+                v_bitrate = int(s0.get("bit_rate") or 0)
+            except (TypeError, ValueError):
+                v_bitrate = 0
+        if v_bitrate <= 0:
+            try:
+                v_bitrate = int(fmt.get("bit_rate") or 0)
+            except (TypeError, ValueError):
+                v_bitrate = 0
+        if width <= 0 or height <= 0 or fps <= 0.0 or v_bitrate <= 0:
+            return 0.0
+        denom = fps * width * height
+        return float(v_bitrate) / float(denom) if denom > 0 else 0.0
+    except (json.JSONDecodeError, subprocess.TimeoutExpired, FileNotFoundError):
+        return 0.0
