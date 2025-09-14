@@ -52,18 +52,23 @@ class TestMainScriptOutput(unittest.TestCase):
             csv_path = os.path.join(tmpdir, "out.csv")
             sh_path = os.path.join(tmpdir, "convert.sh")
 
-            with patch(
-                "video_codec_checker.main.get_video_files",
-                return_value=[Path("a.avi")],
-            ), patch(
-                "video_codec_checker.main.probe_video_metadata",
-                return_value=("mpeg4", 2),
-            ), patch(
-                "video_codec_checker.main.generate_ffmpeg_command",
-                return_value="ffmpeg CMD1",
-            ), patch(
-                "video_codec_checker.main.get_output_path",
-                return_value=Path("/abs/out.mkv"),
+            with (
+                patch(
+                    "video_codec_checker.main.get_video_files",
+                    return_value=[Path("a.avi")],
+                ),
+                patch(
+                    "video_codec_checker.main.probe_video_metadata",
+                    return_value=("mpeg4", 2),
+                ),
+                patch(
+                    "video_codec_checker.main.generate_ffmpeg_command",
+                    return_value="ffmpeg CMD1",
+                ),
+                patch(
+                    "video_codec_checker.main.get_output_path",
+                    return_value=Path("/abs/out.mkv"),
+                ),
             ):
                 checker = VideoCodecChecker(csv_path)
                 count = checker.process_files(
@@ -81,21 +86,29 @@ class TestMainScriptOutput(unittest.TestCase):
             csv_path = os.path.join(tmpdir, "out.csv")
             sh_path = os.path.join(tmpdir, "convert.sh")
 
-            with patch(
-                "video_codec_checker.main.get_video_files",
-                return_value=[Path("a.avi")],
-            ), patch(
-                "video_codec_checker.main.probe_video_metadata",
-                return_value=("mpeg4", 2),
-            ), patch(
-                "video_codec_checker.main.generate_ffmpeg_command",
-                return_value="ffmpeg CMD1",
-            ), patch(
-                "video_codec_checker.main.get_output_path",
-                return_value=Path("/abs/out.mkv"),
-            ), patch(
-                "video_codec_checker.script_writer.which",
-                side_effect=lambda name: "/usr/bin/trash" if name == "trash" else None,
+            with (
+                patch(
+                    "video_codec_checker.main.get_video_files",
+                    return_value=[Path("a.avi")],
+                ),
+                patch(
+                    "video_codec_checker.main.probe_video_metadata",
+                    return_value=("mpeg4", 2),
+                ),
+                patch(
+                    "video_codec_checker.main.generate_ffmpeg_command",
+                    return_value="ffmpeg CMD1",
+                ),
+                patch(
+                    "video_codec_checker.main.get_output_path",
+                    return_value=Path("/abs/out.mkv"),
+                ),
+                patch(
+                    "video_codec_checker.script_writer.which",
+                    side_effect=lambda name: "/usr/bin/trash"
+                    if name == "trash"
+                    else None,
+                ),
             ):
                 checker = VideoCodecChecker(csv_path)
                 count = checker.process_files(

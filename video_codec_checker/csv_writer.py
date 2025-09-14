@@ -9,6 +9,7 @@ import csv
 from pathlib import Path
 from typing import IO
 
+from video_codec_checker.models import CsvRow
 
 CSV_FIELDS = ["File", "Codec", "Audio_Channels", "FFmpeg_Command"]
 
@@ -40,10 +41,14 @@ class CsvResultsWriter:
             }
         )
 
+    def write_row_dc(self, row: CsvRow) -> None:
+        if self._writer is None:
+            raise RuntimeError("CSV writer is not open")
+        self._writer.writerow(row.as_dict())
+
     def close(self) -> None:
         if self._fh is not None:
             self._fh.flush()
             self._fh.close()
             self._fh = None
             self._writer = None
-

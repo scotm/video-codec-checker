@@ -6,8 +6,8 @@ Maintains counters and timings for fast and full ffprobe calls.
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
-from typing import Dict
+from dataclasses import dataclass
+from typing import Dict, IO
 
 
 @dataclass
@@ -49,14 +49,15 @@ class ProbeStats:
     def _fmt(self, sec: float) -> str:
         return f"{sec:.3f}s"
 
-    def print_summary(self, fast_probe_enabled: bool, stream = sys.stderr) -> None:
+    def print_summary(self, fast_probe_enabled: bool, stream: IO[str] = sys.stderr) -> None:
         """Print a short stats + timing summary if fast-probe was used."""
         if not fast_probe_enabled:
             return
         total_fast = self.fast_attempted
         print(
             (
-                "Probe stats: fast_attempted=%d, fast_ok=%d, fast_fallbacks=%d, full_probes=%d"
+                "Probe stats: fast_attempted=%d, fast_ok=%d, "
+                "fast_fallbacks=%d, full_probes=%d"
             )
             % (
                 total_fast,
@@ -69,9 +70,7 @@ class ProbeStats:
         avg_fast = (self.fast_time / total_fast) if total_fast > 0 else 0.0
         avg_full = (self.full_time / self.full_probes) if self.full_probes > 0 else 0.0
         print(
-            (
-                "Timing: fast_total=%s, full_total=%s, avg_fast=%s, avg_full=%s"
-            )
+            ("Timing: fast_total=%s, full_total=%s, avg_fast=%s, avg_full=%s")
             % (
                 self._fmt(self.fast_time),
                 self._fmt(self.full_time),
@@ -80,4 +79,3 @@ class ProbeStats:
             ),
             file=stream,
         )
-

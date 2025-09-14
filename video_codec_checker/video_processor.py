@@ -39,6 +39,7 @@ def get_video_files(
 
 # ---- ffprobe helpers (kept small to reduce complexity in the main API) ----
 
+
 def _ensure_stats(stats: dict | None) -> dict:
     if stats is None:
         return {
@@ -72,7 +73,7 @@ def _probe_full(
     t0 = time.perf_counter()
     result = _run(base + [str(file_path)])
     if stats is not None:
-        stats["full_time"] += (time.perf_counter() - t0)
+        stats["full_time"] += time.perf_counter() - t0
     return result
 
 
@@ -84,7 +85,7 @@ def _probe_fast(
     t0 = time.perf_counter()
     result = _run(base + ffprobe_args + [str(file_path)])
     if stats is not None:
-        stats["fast_time"] += (time.perf_counter() - t0)
+        stats["fast_time"] += time.perf_counter() - t0
     if result.returncode != 0 or not result.stdout:
         if stats is not None:
             stats["fast_fallbacks"] += 1

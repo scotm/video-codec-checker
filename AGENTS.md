@@ -24,6 +24,7 @@
 - `make type` — run `mypy video_codec_checker/`
 - `make test` — run `pytest`
 - `make release VERSION=x.y.z TITLE="..." NOTES="..."` — create a GitHub Release for an existing tag (requires clean working tree and authenticated `gh`).
+- `make release_auto VERSION=x.y.z TITLE=\"...\" NOTES_FILE=release-notes-vx.y.z.md` — create a GitHub Release and append auto-generated notes to curated notes.
 
 Notes:
 - `UV` variable controls which runner is used (default: `uv`). Example: `make test UV="uv"`.
@@ -109,6 +110,7 @@ When making changes to the codebase, follow these guidelines to ensure safety:
 1. **Type Annotations**:
    - Add type hints to all function parameters and return values
    - Use `typing` module for complex types when necessary
+   - Avoid `typing.Any` wherever possible; prefer precise types, `Protocol`s, `TypeVar`/generics, and unions. If `Any` is truly unavoidable, constrain and document the rationale.
    - Run mypy after adding type annotations to verify correctness
 
 2. **Unit Tests**:
@@ -179,9 +181,13 @@ Using uv ensures dependencies are properly contained and managed without affecti
 - Set Opus bitrate based on audio channels: 48k mono, 128k stereo, 256k 5.1, 320k 7.1+
 ## Release Publishing (using GitHub CLI)
 - Verify authentication: `gh auth status`
-- Create a release from an existing tag: `gh release create vX.Y.Z --title "<title>" --notes "<summary>"`
-- Optionally generate notes: `gh release create vX.Y.Z --generate-notes`
-- Edit an existing release: `gh release edit vX.Y.Z --title "<title>" --notes-file CHANGELOG.md`
+- Create a release from an existing tag using curated notes:
+  - `gh release create vX.Y.Z --title "<title>" --notes-file release-notes-vX.Y.Z.md`
+- Also include auto-generated notes for completeness:
+  - Generate via API: `gh api repos/<owner>/<repo>/releases/generate-notes -f tag_name='vX.Y.Z' -f previous_tag_name='vPrev' --jq .body > auto-notes-vX.Y.Z.md`
+  - Append to curated notes and update: `cat release-notes-vX.Y.Z.md > combined.md && printf "\n---\n\nAuto-generated notes\n\n" >> combined.md && cat auto-notes-vX.Y.Z.md >> combined.md && gh release edit vX.Y.Z --notes-file combined.md`
+  - Alternatively: `gh release edit vX.Y.Z --generate-notes` (this overwrites notes with generated content; prefer the combined approach above)
+- Edit an existing release title/notes later: `gh release edit vX.Y.Z --title "<title>" --notes-file <file>.md`
 
 ## Pre-commit Hooks
 - This repo includes a `.pre-commit-config.yaml` that blocks committing generated CSV outputs: `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv`.

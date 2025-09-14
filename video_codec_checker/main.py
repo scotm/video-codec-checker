@@ -7,15 +7,15 @@ State-of-the-art: av1, hevc, h264
 
 import sys
 from datetime import datetime
-from pathlib import Path
 
-from video_codec_checker.csv_writer import CsvResultsWriter
-from video_codec_checker.concurrency import ProbeExecutor
 from video_codec_checker.cli import parse_args
+from video_codec_checker.concurrency import ProbeExecutor
+from video_codec_checker.csv_writer import CsvResultsWriter
 from video_codec_checker.ffmpeg_generator import (
     generate_ffmpeg_command,
     get_output_path,
 )
+from video_codec_checker.models import AppConfig, CsvRow
 from video_codec_checker.script_writer import (
     ScriptWriter,
     resolve_trash_config,
@@ -65,11 +65,21 @@ class VideoCodecChecker:
         executor = ProbeExecutor(
             jobs=jobs, ffprobe_args=ffprobe_args, probe_func=probe_video_metadata
         )
-        for file_path, codec, channels, _local_stats in executor.run(video_files):
+        for result in executor.run(video_files):
+            file_path = result.path
+            codec = result.codec
+            channels = result.channels
             if codec and codec not in GOOD_CODECS:
                 abs_in = file_path.resolve()
                 ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
-                csv_writer.write_row(str(file_path), codec, channels, ffmpeg_cmd)
+                csv_writer.write_row_dc(
+                    CsvRow(
+                        file=str(file_path),
+                        codec=codec,
+                        channels=channels,
+                        command=ffmpeg_cmd,
+                    )
+                )
                 if script is not None:
                     if delete_original or trash_original:
                         dst = get_output_path(abs_in)
@@ -92,30 +102,27 @@ class VideoCodecChecker:
         executor.stats.print_summary(ffprobe_args is not None, stream=sys.stderr)
         return processed_count
 
+    def process_config(self, cfg: AppConfig) -> int:
+        """Process using a typed AppConfig."""
+        ffargs = cfg.probe.args
+        delete = cfg.cleanup.delete_original
+        trash = cfg.cleanup.trash_original
+        return self.process_files(
+            directory=str(cfg.directory),
+            jobs=cfg.jobs,
+            script_file=str(cfg.script_file) if cfg.script_file else None,
+            delete_original=delete,
+            trash_original=trash,
+            ffprobe_args=ffargs,
+        )
+
 
 def main() -> None:
-    args = parse_args()
+    cfg = parse_args()
 
     try:
-        checker = VideoCodecChecker(args.output)
-        # Build ffprobe args for fast-probe if requested
-        fast_args: list[str] | None = None
-        if args.fast_probe:
-            fast_args = [
-                "-probesize",
-                str(args.probe_size),
-                "-analyzeduration",
-                str(args.analyze_duration),
-            ]
-
-        processed_count = checker.process_files(
-            args.directory,
-            jobs=args.jobs,
-            script_file=args.script,
-            delete_original=args.delete_original,
-            trash_original=args.trash_original,
-            ffprobe_args=fast_args,
-        )
+        checker = VideoCodecChecker(str(cfg.output))
+        processed_count = checker.process_config(cfg)
         print(f"Found {processed_count} files that need conversion.")
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.", file=sys.stderr)
