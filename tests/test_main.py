@@ -29,7 +29,7 @@ class TestMainScriptOutput(unittest.TestCase):
                 ),
                 patch(
                     "video_codec_checker.main.generate_ffmpeg_command",
-                    side_effect=["ffmpeg CMD1"],
+                    return_value="ffmpeg CMD1",
                 ),
             ):
                 checker = VideoCodecChecker(csv_path)
@@ -172,6 +172,10 @@ class TestMainScriptOutput(unittest.TestCase):
                     "video_codec_checker.main.compute_bpp",
                     return_value=0.05,
                 ),
+                patch(
+                    "video_codec_checker.main.generate_ffmpeg_command",
+                    return_value="ffmpeg H264",
+                ),
             ):
                 checker = VideoCodecChecker(csv_path)
                 count = checker.process_files(
@@ -182,6 +186,12 @@ class TestMainScriptOutput(unittest.TestCase):
             self.assertEqual(count, 0)
             # Script file should not be created
             self.assertFalse(os.path.exists(sh_path))
+            # CSV should contain an FFmpeg command for h264 row
+            with open(csv_path, "r", encoding="utf-8") as f:
+                lines = f.read().splitlines()
+            self.assertGreaterEqual(len(lines), 2)
+            self.assertIn("FFmpeg_Command", lines[0])
+            self.assertIn("ffmpeg H264", lines[1])
 
 
 if __name__ == "__main__":
