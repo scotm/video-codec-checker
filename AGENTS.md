@@ -31,6 +31,7 @@ Notes:
 
 ## Documentation Conventions
 - README should list "What's New" only for the last two releases. Older release notes belong in `CHANGELOG.md`.
+- CHANGELOG.md should list entries in descending version order (newest first).
 
 ## Future CI Enhancements
 - When the project grows, consider adding test coverage reporting:
