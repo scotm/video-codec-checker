@@ -235,13 +235,19 @@ def main() -> None:
         "--script",
         help=("Write a shell script with the generated FFmpeg commands; not executed"),
     )
+    # Fast-probe is enabled by default unless explicitly disabled via env/CLI
+    fast_probe_default = (
+        env_config.get("fast_probe")
+        if env_config.get("fast_probe") is not None
+        else True
+    )
     parser.add_argument(
         "--fast-probe",
-        action="store_true",
-        default=env_config.get("fast_probe", False),
+        action=argparse.BooleanOptionalAction,
+        default=fast_probe_default,
         help=(
-            "Use ffprobe with reduced -probesize/-analyzeduration for faster "
-            "detection; falls back to full probe if insufficient"
+            "Enable fast ffprobe (-probesize/-analyzeduration). "
+            "Use --no-fast-probe to disable."
         ),
     )
     parser.add_argument(
