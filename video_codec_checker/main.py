@@ -54,16 +54,9 @@ class VideoCodecChecker:
         csv_writer = CsvResultsWriter(self.output_file)
         csv_writer.open()
 
-        # Optional script writer
+        # Optional script writer (lazy creation only when a conversion is needed)
         script: ScriptWriter | None = None
-        if script_file:
-            trash_cfg = resolve_trash_config(trash_original)
-            script = ScriptWriter(
-                path=script_file,
-                delete_original=delete_original,
-                trash_config=trash_cfg,
-            )
-            script.open()
+        want_script = bool(script_file)
 
         # Run metadata probing concurrently
         executor = ProbeExecutor(
@@ -87,6 +80,14 @@ class VideoCodecChecker:
                 ffmpeg_cmd = ""
                 if codec and codec not in GOOD_CODECS:
                     ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
+                    if want_script and script is None:
+                        trash_cfg = resolve_trash_config(trash_original)
+                        script = ScriptWriter(
+                            path=script_file,  # type: ignore[arg-type]
+                            delete_original=delete_original,
+                            trash_config=trash_cfg,
+                        )
+                        script.open()
                     if script is not None:
                         if delete_original or trash_original:
                             dst = get_output_path(abs_in)
