@@ -32,6 +32,14 @@ Notes:
 ## Documentation Conventions
 - README should list "What's New" only for the last two releases. Older release notes belong in `CHANGELOG.md`.
 
+## Future CI Enhancements
+- When the project grows, consider adding test coverage reporting:
+  - Measure coverage with `coverage.py` and fail if below a threshold (e.g., 90%).
+  - Upload results to Codecov (or GitHub code coverage) for PR insights.
+  - Gate merges on coverage checks in branch protection rules.
+- Consider expanding CI matrix (OS variants, Python pypy) if portability becomes a concern.
+- Consider caching wheels and pip dirs for faster cold starts.
+
 ## Code Quality Checks
 
 Before committing changes, always run the following checks to ensure code quality:
