@@ -153,6 +153,36 @@ class TestMainScriptOutput(unittest.TestCase):
             idx = header.index("Audio_Channels")
             self.assertEqual(row[idx], "2")
 
+    def test_does_not_create_script_when_only_h264(self):
+        """Ensure no script file is created when no conversions are needed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "out.csv")
+            sh_path = os.path.join(tmpdir, "convert.sh")
+
+            with (
+                patch(
+                    "video_codec_checker.main.get_video_files",
+                    return_value=[Path("a.mp4")],
+                ),
+                patch(
+                    "video_codec_checker.main.probe_video_metadata",
+                    return_value=("h264", 2),
+                ),
+                patch(
+                    "video_codec_checker.main.compute_bpp",
+                    return_value=0.05,
+                ),
+            ):
+                checker = VideoCodecChecker(csv_path)
+                count = checker.process_files(
+                    directory=".", jobs=1, script_file=sh_path
+                )
+
+            # No conversions expected
+            self.assertEqual(count, 0)
+            # Script file should not be created
+            self.assertFalse(os.path.exists(sh_path))
+
 
 if __name__ == "__main__":
     unittest.main()
