@@ -1,5 +1,6 @@
 """Tests for video processing functionality."""
 
+import json
 import subprocess
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ from video_codec_checker.video_processor import (
     get_audio_channels,
     get_video_codec,
     get_video_files,
+    probe_video_metadata,
 )
 
 
@@ -138,6 +140,43 @@ class TestVideoProcessor(unittest.TestCase):
 
             result = get_audio_channels(Path("test.mp4"))
             self.assertEqual(result, 0)
+
+    def test_probe_video_metadata_json(self):
+        """Test single ffprobe call returns codec and channels from JSON output."""
+        json_output = {
+            "streams": [
+                {"index": 0, "codec_type": "video", "codec_name": "mpeg4"},
+                {"index": 1, "codec_type": "audio", "channels": 2},
+            ]
+        }
+        with patch("video_codec_checker.video_processor.subprocess.run") as mock_run:
+            mock_result = MagicMock()
+            mock_result.returncode = 0
+            mock_result.stdout = json.dumps(json_output)
+            mock_run.return_value = mock_result
+
+            codec, channels = probe_video_metadata(Path("test.avi"))
+            self.assertEqual(codec, "mpeg4")
+            self.assertEqual(channels, 2)
+
+    def test_probe_video_metadata_errors(self):
+        """Test probe_video_metadata handling of bad output and exceptions."""
+        # Non-zero return
+        with patch("video_codec_checker.video_processor.subprocess.run") as mock_run:
+            mock_result = MagicMock()
+            mock_result.returncode = 1
+            mock_result.stdout = ""
+            mock_run.return_value = mock_result
+            codec, channels = probe_video_metadata(Path("bad.mkv"))
+            self.assertIsNone(codec)
+            self.assertEqual(channels, 0)
+
+        # Timeout
+        with patch("video_codec_checker.video_processor.subprocess.run") as mock_run:
+            mock_run.side_effect = subprocess.TimeoutExpired("ffprobe", 30)
+            codec, channels = probe_video_metadata(Path("timeout.mp4"))
+            self.assertIsNone(codec)
+            self.assertEqual(channels, 0)
 
 
 if __name__ == "__main__":

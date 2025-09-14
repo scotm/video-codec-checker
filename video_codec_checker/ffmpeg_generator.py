@@ -29,10 +29,12 @@ def get_audio_bitrate(channels: int) -> str:
 
 
 def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
-    """Generate FFmpeg command to convert video to AV1 and audio to Opus."""
-    output_file = input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
-    audio_bitrate = get_audio_bitrate(channels)
+    """Generate FFmpeg command to convert video to AV1 and audio to Opus.
 
+    - Explicitly maps primary video stream and optional primary audio stream
+    - Uses -an when no audio is present
+    """
+    output_file = input_file.with_stem(input_file.stem + "_av1").with_suffix(".mkv")
     q_input = _single_quote(str(input_file))
     q_output = _single_quote(str(output_file))
 
@@ -42,17 +44,28 @@ def generate_ffmpeg_command(input_file: Path, channels: int) -> str:
         q_input,
         "-map_metadata",
         "-1",
+        "-map",
+        "0:v:0",
         "-c:v",
         "libsvtav1",
         "-preset",
         "4",
         "-crf",
         "32",
-        "-c:a",
-        "libopus",
-        "-b:a",
-        audio_bitrate,
-        q_output,
     ]
 
+    if channels and channels > 0:
+        audio_bitrate = get_audio_bitrate(channels)
+        cmd_parts += [
+            "-map",
+            "0:a:0?",
+            "-c:a",
+            "libopus",
+            "-b:a",
+            audio_bitrate,
+        ]
+    else:
+        cmd_parts += ["-an"]
+
+    cmd_parts.append(q_output)
     return " ".join(cmd_parts)
