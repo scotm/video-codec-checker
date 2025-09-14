@@ -35,3 +35,8 @@ v0.5.0 - 2025-09-14
 - Add `scripts/convert_template.sh` to execute a file of FFmpeg commands with logging and optional dry-run
 - Ignore generated conversion CSV outputs in `.gitignore` (e.g., `*_conversions.csv`)
 - Remove previously tracked generated CSV from repository
+v0.5.1 - 2025-09-14
+-------------------
+- Add Makefile convenience targets for linting, formatting, type-checking, testing, and release publishing
+- Add pre-commit hook to block generated CSV outputs from being committed
+- Document Makefile and pre-commit usage in README and AGENTS

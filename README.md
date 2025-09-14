@@ -4,6 +4,11 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.5.1
+- Add Makefile convenience targets for linting, formatting, type-checking, testing, and release publishing
+- Add pre-commit hook to block committing generated CSV outputs (install via `uv run pre-commit install`)
+- Document Makefile and pre-commit usage in README and AGENTS
+
 ## What's New in 0.5.0
 - Add `scripts/convert_template.sh` runner to execute command files with logging and optional dry-run
 - Ignore generated conversion CSV outputs via `.gitignore`
@@ -153,6 +158,27 @@ To run these tools:
 5. Run tests: `uv run python -m pytest tests/`
 
 These tools help maintain code quality and catch potential issues early in the development process.
+
+### Makefile Shortcuts
+
+Common tasks are available via `make`:
+
+- `make check` — run lint, type check, and tests
+- `make lint` — run ruff with `--fix`
+- `make format` — run ruff formatter
+- `make type` — run mypy
+- `make test` — run pytest
+- `make release VERSION=x.y.z TITLE="..." NOTES="..."` — create a GitHub Release for an existing tag (uses `gh`). Requires a clean working tree and `gh auth login`.
+
+### Pre-commit Hooks
+
+This repo includes a `.pre-commit-config.yaml` to block accidental commits of generated CSV outputs.
+
+Setup:
+- Install dev deps: `uv pip install -e .[dev]`
+- Install hooks: `uv run pre-commit install`
+
+On commit, files matching `video_codec_check_*.csv`, `test_*.csv`, and `*_conversions.csv` will be rejected.
 
 ## GitHub CLI & Releases
 
