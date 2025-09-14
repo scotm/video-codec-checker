@@ -128,6 +128,33 @@ When making changes to the codebase, follow these guidelines to ensure safety:
    - Fix any issues identified by the tools
    - Ensure new code follows existing style conventions
 
+## Refactor & Design Guidance
+
+- Prefer small, typed data models over tuples:
+  - Use `dataclasses` (e.g., `AppConfig`, `ProbeSettings`, `CleanupPolicy`, `FileProbeResult`, `CsvRow`).
+  - Define behavior interfaces with `Protocol` (e.g., a `Prober` callable) for easy injection/mocking.
+- Preserve test patch points during refactors:
+  - If tests monkeypatch `video_codec_checker.main.probe_video_metadata` (or similar), keep an import in `main` and inject that callable into helpers so patches still take effect.
+  - Favor dependency injection over hard imports inside helpers for better testability.
+- Normalize configuration at the edge:
+  - Keep CLI parsing in `cli.py` and return a typed `AppConfig`; compute defaults there (e.g., timestamped output filename).
+  - Merge environment and YAML config deterministically: CLI > env > YAML.
+- Concurrency practices:
+  - Use a bounded `ThreadPoolExecutor` (cap at CPU count or 32) and keep tasks stateless.
+  - Aggregate probe stats centrally and print summaries to `stderr` only when relevant (e.g., fast-probe enabled).
+- Probing strategy:
+  - Prefer a single `ffprobe` JSON call for codec+channels; enable fast-probe by default with fallback to full.
+  - Enforce timeouts and handle failures gracefully; return `(None, 0)` on errors.
+- CSV and script generation:
+  - Stream CSV writing with a fixed header; avoid buffering full results in memory.
+  - Generate scripts safely: robust single-quote escaping, cleanup only after a successful conversion and destination exists, and support trash/delete via detected utilities.
+- Logging:
+  - Print progress and summaries to `stderr`; keep output concise to avoid overwhelming terminals/CI logs.
+- Release hygiene:
+  - Bump `pyproject.toml` version and update CHANGELOG/README (last two releases only) on each release.
+  - Use `make release_auto` to create releases with curated notes and append GitHub auto-generated notes; avoid committing temporary note files.
+  - Push annotated tags before creating the GitHub Release; keep working tree clean.
+
 ## UV (Recommended Python Environment Manager)
 
 This project uses uv for Python dependency management. uv is a fast Python package installer and resolver:
