@@ -102,15 +102,31 @@ class VideoCodecChecker:
             cpu_workers = os.cpu_count() or 1
             max_workers = jobs if jobs and jobs > 0 else min(32, cpu_workers)
 
-            def task(fp: Path) -> tuple[Path, str | None, int]:
-                codec, channels = probe_video_metadata(fp, ffprobe_args)
-                return fp, codec, channels
+            def _init_stats() -> dict:
+                return {
+                    "fast_attempted": 0,
+                    "fast_succeeded": 0,
+                    "fast_fallbacks": 0,
+                    "fast_time": 0.0,
+                    "full_probes": 0,
+                    "full_time": 0.0,
+                }
+
+            def task(fp: Path) -> tuple[Path, str | None, int, dict]:
+                local_stats = _init_stats()
+                codec, channels = probe_video_metadata(fp, ffprobe_args, local_stats)
+                return fp, codec, channels, local_stats
 
             # Run metadata probing with optional concurrency
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = [executor.submit(task, fp) for fp in video_files]
+                # Global stats aggregate
+                agg = _init_stats()
                 for fut in as_completed(futures):
-                    file_path, codec, channels = fut.result()
+                    file_path, codec, channels, local_stats = fut.result()
+                    # Aggregate stats
+                    for k in agg:
+                        agg[k] += local_stats.get(k, 0)
                     if codec and codec not in GOOD_CODECS:
                         abs_in = file_path.resolve()
                         ffmpeg_cmd = generate_ffmpeg_command(abs_in, channels)
@@ -144,6 +160,47 @@ class VideoCodecChecker:
                 print(f"Script written to: {script_file}", file=sys.stderr)
 
         print(f"Results written to: {self.output_file}", file=sys.stderr)
+        # Print probe stats summary if fast-probe was enabled
+        if ffprobe_args is not None:
+            total_fast = agg["fast_attempted"]
+            print(
+                (
+                    "Probe stats: fast_attempted=%d, fast_ok=%d, "
+                    "fast_fallbacks=%d, full_probes=%d"
+                )
+                % (
+                    total_fast,
+                    agg["fast_succeeded"],
+                    agg["fast_fallbacks"],
+                    agg["full_probes"],
+                ),
+                file=sys.stderr,
+            )
+            # Timings
+
+            def _fmt(sec: float) -> str:
+                return f"{sec:.3f}s"
+
+            avg_fast = (
+                agg["fast_time"] / total_fast if total_fast > 0 else 0.0
+            )
+            avg_full = (
+                agg["full_time"] / agg["full_probes"]
+                if agg["full_probes"] > 0
+                else 0.0
+            )
+            print(
+                (
+                    "Timing: fast_total=%s, full_total=%s, avg_fast=%s, avg_full=%s"
+                )
+                % (
+                    _fmt(agg["fast_time"]),
+                    _fmt(agg["full_time"]),
+                    _fmt(avg_fast),
+                    _fmt(avg_full),
+                ),
+                file=sys.stderr,
+            )
         return processed_count
 
 
