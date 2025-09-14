@@ -56,6 +56,21 @@ For Python version with uv (recommended):
    - Run it manually when ready: `./convert.sh`
 3. Parallelize metadata probing: `uv run check-video-codecs -j 8`
 
+### Conversion Script Template
+
+You can also run commands from a generated script using the provided template:
+
+- Generate commands: `uv run check-video-codecs -o results.csv -s convert.sh`
+- Make executable: `chmod +x convert.sh`
+- Execute manually when ready: `./convert.sh`
+
+Alternatively, use the template runner to execute a file of commands line-by-line with logging and optional dry-run:
+
+- `scripts/convert_template.sh -f convert.sh -l convert.log` (runs commands)
+- Dry-run: `scripts/convert_template.sh -f convert.sh -n`
+
+The template ignores blank lines and comments (lines starting with `#`), logs each command, and continues on failures.
+
 Both versions:
 - If no output file is specified, a timestamped filename will be generated automatically
 - Accept a directory argument to scan a specific directory: `./check_video_codecs.sh /path/to/videos` or `python check_video_codecs.py /path/to/videos`
