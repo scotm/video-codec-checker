@@ -40,6 +40,24 @@ Notes:
 - Consider expanding CI matrix (OS variants, Python pypy) if portability becomes a concern.
 - Consider caching wheels and pip dirs for faster cold starts.
 
+## Labels
+Standard GitHub labels used in this repo and their intent:
+- bug: Something isn’t working
+- enhancement: New feature or request
+- documentation: Docs changes
+- chore: Maintenance tasks that don’t change behavior
+- refactor: Code cleanup without behavior changes
+- ci: Continuous integration changes
+- test: Testing-related changes
+- dependencies: Dependency updates (e.g., from Dependabot)
+- good first issue: Issues suitable for newcomers
+- help wanted: Extra attention is needed
+- question: Further information requested
+
+Notes:
+- Prefer these labels on issues and PRs to aid triage and automation.
+- If a label already exists with a different color/description, prefer not to overwrite without discussion.
+
 ## Code Quality Checks
 
 Before committing changes, always run the following checks to ensure code quality:
