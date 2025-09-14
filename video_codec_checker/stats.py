@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from typing import Dict, IO
+from typing import IO, Dict
 
 
 @dataclass
@@ -49,7 +49,9 @@ class ProbeStats:
     def _fmt(self, sec: float) -> str:
         return f"{sec:.3f}s"
 
-    def print_summary(self, fast_probe_enabled: bool, stream: IO[str] = sys.stderr) -> None:
+    def print_summary(
+        self, fast_probe_enabled: bool, stream: IO[str] = sys.stderr
+    ) -> None:
         """Print a short stats + timing summary if fast-probe was used."""
         if not fast_probe_enabled:
             return
