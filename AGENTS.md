@@ -40,6 +40,29 @@ Notes:
 - Consider expanding CI matrix (OS variants, Python pypy) if portability becomes a concern.
 - Consider caching wheels and pip dirs for faster cold starts.
 
+## CI Expectations (Lessons Learned)
+- CI runs a Python matrix on `3.10`, `3.11`, and `3.12` and requires:
+  - `ruff check .` and `ruff format --check .` to pass.
+  - `mypy video_codec_checker/` to pass (stubs required for third‑party libs).
+  - `pytest` to pass.
+- Before pushing:
+  - Run `make check` (or run `ruff format .` then `ruff check .`, `mypy`, and `pytest`).
+  - If mypy reports “Library stubs not installed”, add the appropriate `types-` package to `[project.optional-dependencies].dev` (e.g., `types-PyYAML`) and update the lockfile as needed.
+  - Keep formatting consistent to satisfy `ruff format --check` in CI.
+
+## Dependency & Lockfile Hygiene
+- Add runtime deps to `[project].dependencies` and dev tools/stubs to `[project.optional-dependencies].dev`.
+- Install locally with `uv pip install -e .[dev]` and confirm `uv.lock` stays in sync.
+- Avoid unnecessary deps; prefer stdlib where practical.
+
+## FFprobe/FFmpeg Conventions
+- Prefer a single `ffprobe` JSON call without `-select_streams`; parse first video and audio streams from `streams`.
+- Generate FFmpeg commands that:
+  - Explicitly map primary streams: `-map 0:v:0` and `-map 0:a:0?`.
+  - Use `-an` when no audio is present.
+  - Quote paths robustly (POSIX single‑quote escaping) so commands survive special characters.
+- Don’t execute conversion commands automatically; when adding automation, write a script (`--script`) for user‑initiated runs.
+
 ## Labels
 Standard GitHub labels used in this repo and their intent:
 - bug: Something isn’t working
