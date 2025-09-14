@@ -4,14 +4,14 @@ This script recursively searches the current directory for video files using cod
 
 Available in both Bash (`check_video_codecs.sh`) and Python (`check_video_codecs.py`) implementations.
 
+## What's New in 0.6.0
+- Add `-r/--delete-original` flag and `DELETE_ORIGINAL` env to remove source file after successful conversion (script generation only)
+- Generated scripts include a `run_and_cleanup` wrapper when enabled; cleanup occurs only if the destination file exists
+
 ## What's New in 0.5.1
 - Add Makefile convenience targets for linting, formatting, type-checking, testing, and release publishing
 - Add pre-commit hook to block committing generated CSV outputs (install via `uv run pre-commit install`)
 - Document Makefile and pre-commit usage in README and AGENTS
-
-## What's New in 0.5.0
-- Add `scripts/convert_template.sh` runner to execute command files with logging and optional dry-run
-- Ignore generated conversion CSV outputs via `.gitignore`
 
 <!-- Older release notes are available in CHANGELOG.md. Keep only the last two here. -->
 
@@ -39,6 +39,8 @@ For Python version:
    - Make it executable: `chmod +x convert.sh`
    - Run it manually when ready: `./convert.sh`
 3. Parallelize metadata probing: `python check_video_codecs.py -j 8`
+4. Include cleanup in generated script (delete source on success):
+   - `python check_video_codecs.py -s convert.sh -r`
 
 For Python version with uv (recommended):
 1. Run with uv: `uv run check-video-codecs`
@@ -47,6 +49,8 @@ For Python version with uv (recommended):
    - Make it executable: `chmod +x convert.sh`
    - Run it manually when ready: `./convert.sh`
 3. Parallelize metadata probing: `uv run check-video-codecs -j 8`
+4. Include cleanup in generated script (delete source on success):
+   - `uv run check-video-codecs -s convert.sh -r`
 
 ### Conversion Script Template
 
@@ -60,6 +64,7 @@ Alternatively, use the template runner to execute a file of commands line-by-lin
 
 - `scripts/convert_template.sh -f convert.sh -l convert.log` (runs commands)
 - Dry-run: `scripts/convert_template.sh -f convert.sh -n`
+ - Optional cleanup: generate the script with `-r/--delete-original` or set `DELETE_ORIGINAL=1` so the script removes the source file after successful conversion and when the destination file exists.
 
 The template ignores blank lines and comments (lines starting with `#`), logs each command, and continues on failures.
 
@@ -72,6 +77,7 @@ Both versions:
 The Python version also supports environment variables for configuration:
 - `OUTPUT_FILE`: Default output CSV filename (equivalent to -o/--output argument)
 - `SCAN_DIRECTORY`: Directory to scan for video files (equivalent to directory argument)
+- `DELETE_ORIGINAL`: When set to a truthy value (`1`, `true`, `yes`, `on`), generated scripts will delete the source file after successful conversion (equivalent to `-r/--delete-original`).
 
 You can also use a `.env` file in the current directory to set these variables. See `.env.example` for reference.
 
