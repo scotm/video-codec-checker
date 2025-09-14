@@ -32,10 +32,12 @@ For Bash version:
 For Python version:
 1. Run it in the target directory: `python check_video_codecs.py`
 2. Specify output file: `python check_video_codecs.py -o results.csv`
+3. Parallelize metadata probing: `python check_video_codecs.py -j 8`
 
 For Python version with uv (recommended):
 1. Run with uv: `uv run check-video-codecs`
 2. Specify output file: `uv run check-video-codecs -o results.csv`
+3. Parallelize metadata probing: `uv run check-video-codecs -j 8`
 
 Both versions:
 - If no output file is specified, a timestamped filename will be generated automatically
@@ -71,15 +73,17 @@ File,Codec,FFmpeg_Command
 ## What It Does
 
 - **File Discovery**: Locates video files by extension (mp4, avi, mkv, mov, wmv, flv, webm, m4v, mpg, mpeg, 3gp, ogv).
-- **Codec Detection**: Queries the first video stream with `ffprobe` to identify the codec.
+- **Codec & Audio Probe**: Uses a single `ffprobe` call (JSON) to obtain the primary video codec and primary audio channel count efficiently.
 - **Filtering**: Flags files not using AV1, HEVC, or H.264 as "legacy."
 - **Re-encoding Suggestion**: Generates an FFmpeg command that:
    - Converts video to AV1 using SVT-AV1 (preset 4 for balanced speed/quality, CRF 32 for high quality).
-   - Re-encodes audio to Opus (48k mono, 128k stereo, 256k 5.1, 320k 7.1+).
+   - Re-encodes audio to Opus (48k mono, 128k stereo, 256k 5.1, 320k 7.1+). If audio is absent, uses `-an` to omit audio.
+   - Explicitly maps primary streams only: `-map 0:v:0` and `-map 0:a:0?` for predictable outputs.
   - Outputs to MKV (flexible container for modern codecs).
   - Strips global metadata (e.g., titles, comments) with `-map_metadata -1`.
   - Uses absolute paths to ensure commands work from any directory.
 - **Safety**: Handles filenames with spaces, newlines, or special characters properly.
+ - **Performance**: Parallel metadata probing via `--jobs` and a single directory walk for file discovery.
 
 ## Notes
 
